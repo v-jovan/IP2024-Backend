@@ -17,8 +17,8 @@ public class MessageEntity {
     @Column(name = "sender_id", nullable = false)
     private Integer senderId;
     @Basic
-    @Column(name = "recepient_id", nullable = false)
-    private Integer recepientId;
+    @Column(name = "recipient_id", nullable = false)
+    private Integer recipientId;
     @Basic
     @Column(name = "content", nullable = false, length = -1)
     private String content;
@@ -32,7 +32,7 @@ public class MessageEntity {
     @JoinColumn(name = "sender_id", referencedColumnName = "id", nullable = false)
     private UserEntity userBySenderId;
     @ManyToOne
-    @JoinColumn(name = "recepient_id", referencedColumnName = "id", nullable = false)
-    private UserEntity userByRecepientId;
+    @JoinColumn(name = "recipient_id", referencedColumnName = "id", nullable = false)
+    private UserEntity userByRecipientId;
 
 }

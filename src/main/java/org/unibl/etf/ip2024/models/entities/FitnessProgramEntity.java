@@ -39,7 +39,7 @@ public class FitnessProgramEntity {
     @Column(name = "price", nullable = false, precision = 2)
     private BigDecimal price;
     @Basic
-    @Column(name = "youtube_url", length = 45)
+    @Column(name = "youtube_url")
     private String youtubeUrl;
     @OneToMany(mappedBy = "fitnessProgram")
     private List<CommentEntity> comments;

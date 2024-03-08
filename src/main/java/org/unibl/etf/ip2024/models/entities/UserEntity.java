@@ -48,8 +48,8 @@ public class UserEntity {
     private List<FitnessProgramEntity> fitnessPrograms;
     @OneToMany(mappedBy = "userBySenderId")
     private List<MessageEntity> messagesBySenderId;
-    @OneToMany(mappedBy = "userByRecepientId")
-    private List<MessageEntity> messagesByRecepientId;
+    @OneToMany(mappedBy = "userByRecipientId")
+    private List<MessageEntity> messagesByRecipientId;
     @OneToMany(mappedBy = "user")
     private List<SubscriptionEntity> subscriptions;
     @OneToMany(mappedBy = "user")

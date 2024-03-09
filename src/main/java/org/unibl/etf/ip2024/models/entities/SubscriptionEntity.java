@@ -11,12 +11,6 @@ public class SubscriptionEntity {
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
-    @Basic
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
-    @Basic
-    @Column(name = "category_id", nullable = false)
-    private Integer categoryId;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;

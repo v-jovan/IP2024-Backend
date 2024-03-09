@@ -1,5 +1,6 @@
 package org.unibl.etf.ip2024.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,10 +20,13 @@ public class CategoryEntity {
     @Basic
     @Column(name = "description", length = -1)
     private String description;
-    @OneToMany(mappedBy = "categories")
+    @JsonIgnore
+    @OneToMany(mappedBy = "category")
     private List<AttributeEntity> attributes;
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
     private List<FitnessProgramEntity> fitnessPrograms;
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
     private List<SubscriptionEntity> subscriptions;
 

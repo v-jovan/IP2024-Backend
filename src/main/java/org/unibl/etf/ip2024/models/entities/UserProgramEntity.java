@@ -13,15 +13,9 @@ public class UserProgramEntity {
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
-    @Basic
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
-    @Basic
-    @Column(name = "program_id", nullable = false)
-    private Integer programId;
-    @Basic
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Object status;
+    private Status status;
     @Basic
     @Column(name = "start_date", nullable = false)
     private Date startDate;
@@ -30,9 +24,13 @@ public class UserProgramEntity {
     private Date endDate;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private UserEntity user;
+    private UserEntity userByUserId;
     @ManyToOne
     @JoinColumn(name = "program_id", referencedColumnName = "id", nullable = false)
-    private FitnessProgramEntity fitnessProgram;
+    private FitnessProgramEntity fitnessProgramByProgramId;
 
+}
+
+enum Status {
+    ACTIVE, INACTIVE
 }

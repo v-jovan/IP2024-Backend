@@ -11,12 +11,6 @@ public class ProgramAttributeEntity {
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
-    @Basic
-    @Column(name = "fitness_program_id", nullable = false)
-    private Integer fitnessProgramId;
-    @Basic
-    @Column(name = "attribute_value_id", nullable = false)
-    private Integer attributeValueId;
     @ManyToOne
     @JoinColumn(name = "fitness_program_id", referencedColumnName = "id", nullable = false)
     private FitnessProgramEntity fitnessProgram;

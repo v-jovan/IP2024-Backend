@@ -1,5 +1,6 @@
 package org.unibl.etf.ip2024.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,6 +17,7 @@ public class LocationEntity {
     @Basic
     @Column(name = "name", nullable = false)
     private String name;
+    @JsonIgnore
     @OneToMany(mappedBy = "location")
     private List<FitnessProgramEntity> fitnessPrograms;
 

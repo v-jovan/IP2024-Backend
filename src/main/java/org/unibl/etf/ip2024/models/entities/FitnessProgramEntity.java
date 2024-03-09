@@ -1,5 +1,6 @@
 package org.unibl.etf.ip2024.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,23 +16,14 @@ public class FitnessProgramEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
     @Basic
-    @Column(name = "category_id", nullable = false)
-    private Integer categoryId;
-    @Basic
-    @Column(name = "instructor_id", nullable = false)
-    private Integer instructorId;
-    @Basic
-    @Column(name = "location_id", nullable = false)
-    private Integer locationId;
-    @Basic
     @Column(name = "name", nullable = false)
     private String name;
     @Basic
     @Column(name = "description", nullable = false, length = -1)
     private String description;
-    @Basic
+    @Enumerated(EnumType.STRING)
     @Column(name = "difficulty_level", nullable = false)
-    private Object difficultyLevel;
+    private DifficultyLevel difficultyLevel;
     @Basic
     @Column(name = "duration", nullable = false)
     private Integer duration;
@@ -41,6 +33,7 @@ public class FitnessProgramEntity {
     @Basic
     @Column(name = "youtube_url")
     private String youtubeUrl;
+    @JsonIgnore
     @OneToMany(mappedBy = "fitnessProgram")
     private List<CommentEntity> comments;
     @ManyToOne
@@ -52,9 +45,17 @@ public class FitnessProgramEntity {
     @ManyToOne
     @JoinColumn(name = "location_id", referencedColumnName = "id", nullable = false)
     private LocationEntity location;
+    @JsonIgnore
     @OneToMany(mappedBy = "fitnessProgram")
     private List<ProgramAttributeEntity> programAttributes;
-    @OneToMany(mappedBy = "fitnessProgram")
+    @JsonIgnore
+    @OneToMany(mappedBy = "fitnessProgramByProgramId")
     private List<UserProgramEntity> userPrograms;
 
+}
+
+enum DifficultyLevel {
+    BEGINNER,
+    INTERMEDIATE,
+    ADVANCED
 }

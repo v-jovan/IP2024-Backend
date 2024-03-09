@@ -1,5 +1,6 @@
 package org.unibl.etf.ip2024.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,28 +32,41 @@ public class UserEntity {
     @Basic
     @Column(name = "city", nullable = false)
     private String city;
-    @Basic
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private Object role;
+    private Roles role;
     @Basic
     @Column(name = "avatar_url")
     private String avatarUrl;
     @Basic
     @Column(name = "biography", length = -1)
     private String biography;
-    @OneToMany(mappedBy = "users")
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
     private List<ActivityEntity> activities;
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<CommentEntity> comments;
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<FitnessProgramEntity> fitnessPrograms;
+    @JsonIgnore
     @OneToMany(mappedBy = "userBySenderId")
     private List<MessageEntity> messagesBySenderId;
+    @JsonIgnore
     @OneToMany(mappedBy = "userByRecipientId")
     private List<MessageEntity> messagesByRecipientId;
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<SubscriptionEntity> subscriptions;
-    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    @OneToMany(mappedBy = "userByUserId")
     private List<UserProgramEntity> userPrograms;
 
+}
+
+enum Roles {
+    USER,
+    ADMINISTRATOR,
+    INSTRUCTOR
 }

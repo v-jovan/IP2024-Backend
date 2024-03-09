@@ -14,9 +14,6 @@ public class ActivityEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
     @Basic
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
-    @Basic
     @Column(name = "activity_type", nullable = false)
     private String activityType;
     @Basic
@@ -33,5 +30,6 @@ public class ActivityEntity {
     private Date logDate;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private UserEntity users;
+    private UserEntity user;
+
 }

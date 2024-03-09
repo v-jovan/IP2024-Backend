@@ -14,12 +14,6 @@ public class MessageEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
     @Basic
-    @Column(name = "sender_id", nullable = false)
-    private Integer senderId;
-    @Basic
-    @Column(name = "recipient_id", nullable = false)
-    private Integer recipientId;
-    @Basic
     @Column(name = "content", nullable = false, length = -1)
     private String content;
     @Basic

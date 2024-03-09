@@ -1,5 +1,6 @@
 package org.unibl.etf.ip2024.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,17 +15,15 @@ public class AttributeEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
     @Basic
-    @Column(name = "category_id", nullable = false)
-    private Integer categoryId;
-    @Basic
     @Column(name = "name", nullable = false)
     private String name;
     @Basic
     @Column(name = "description", length = -1)
-    private String description;
+    private String user;
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
-    private CategoryEntity categories;
+    private CategoryEntity category;
+    @JsonIgnore
     @OneToMany(mappedBy = "attribute")
     private List<AttributeValueEntity> attributeValues;
 

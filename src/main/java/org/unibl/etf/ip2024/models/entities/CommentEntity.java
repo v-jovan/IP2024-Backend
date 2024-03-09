@@ -14,12 +14,6 @@ public class CommentEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
     @Basic
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
-    @Basic
-    @Column(name = "fitness_program_id", nullable = false)
-    private Integer fitnessProgramId;
-    @Basic
     @Column(name = "content", nullable = false, length = -1)
     private String content;
     @Basic

@@ -2,7 +2,7 @@ package org.unibl.etf.ip2024.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 import java.util.List;
 
@@ -67,6 +67,6 @@ public class UserEntity {
 
 enum Roles {
     USER,
-    ADMINISTRATOR,
+    ADMIN,
     INSTRUCTOR
 }

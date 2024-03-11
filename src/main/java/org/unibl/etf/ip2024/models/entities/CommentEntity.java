@@ -1,7 +1,7 @@
 package org.unibl.etf.ip2024.models.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 import java.sql.Timestamp;
 
@@ -19,10 +19,10 @@ public class CommentEntity {
     @Basic
     @Column(name = "posted_at", nullable = false)
     private Timestamp postedAt;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fitness_program_id", referencedColumnName = "id", nullable = false)
     private FitnessProgramEntity fitnessProgram;
 

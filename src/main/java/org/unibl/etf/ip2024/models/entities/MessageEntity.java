@@ -1,7 +1,7 @@
 package org.unibl.etf.ip2024.models.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 import java.sql.Timestamp;
 
@@ -22,10 +22,10 @@ public class MessageEntity {
     @Basic
     @Column(name = "read_at")
     private Timestamp readAt;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", referencedColumnName = "id", nullable = false)
     private UserEntity userBySenderId;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id", referencedColumnName = "id", nullable = false)
     private UserEntity userByRecipientId;
 

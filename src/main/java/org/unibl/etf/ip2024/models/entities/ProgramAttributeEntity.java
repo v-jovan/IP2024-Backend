@@ -1,7 +1,7 @@
 package org.unibl.etf.ip2024.models.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 @Data
 @Entity
@@ -11,10 +11,10 @@ public class ProgramAttributeEntity {
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fitness_program_id", referencedColumnName = "id", nullable = false)
     private FitnessProgramEntity fitnessProgram;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attribute_value_id", referencedColumnName = "id", nullable = false)
     private AttributeValueEntity attributeValue;
 

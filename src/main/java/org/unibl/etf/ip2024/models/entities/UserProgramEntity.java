@@ -1,7 +1,7 @@
 package org.unibl.etf.ip2024.models.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 import java.sql.Date;
 
@@ -22,10 +22,10 @@ public class UserProgramEntity {
     @Basic
     @Column(name = "end_date", nullable = false)
     private Date endDate;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity userByUserId;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "program_id", referencedColumnName = "id", nullable = false)
     private FitnessProgramEntity fitnessProgramByProgramId;
 

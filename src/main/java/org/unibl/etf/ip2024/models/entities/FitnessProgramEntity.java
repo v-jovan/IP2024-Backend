@@ -2,7 +2,7 @@ package org.unibl.etf.ip2024.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -36,13 +36,13 @@ public class FitnessProgramEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "fitnessProgram")
     private List<CommentEntity> comments;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
     private CategoryEntity category;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "instructor_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", referencedColumnName = "id", nullable = false)
     private LocationEntity location;
     @JsonIgnore

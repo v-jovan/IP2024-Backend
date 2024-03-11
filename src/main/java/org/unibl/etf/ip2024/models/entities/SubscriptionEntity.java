@@ -1,7 +1,7 @@
 package org.unibl.etf.ip2024.models.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 @Data
 @Entity
@@ -11,10 +11,10 @@ public class SubscriptionEntity {
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
     private CategoryEntity category;
 

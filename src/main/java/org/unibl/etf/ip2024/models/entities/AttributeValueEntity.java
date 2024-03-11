@@ -2,7 +2,7 @@ package org.unibl.etf.ip2024.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class AttributeValueEntity {
     @Basic
     @Column(name = "name", nullable = false)
     private String name;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attribute_id", referencedColumnName = "id", nullable = false)
     private AttributeEntity attribute;
     @JsonIgnore

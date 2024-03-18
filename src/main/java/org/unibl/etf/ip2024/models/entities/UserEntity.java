@@ -64,9 +64,3 @@ public class UserEntity {
     private List<UserProgramEntity> userPrograms;
 
 }
-
-enum Roles {
-    USER,
-    ADMIN,
-    INSTRUCTOR
-}

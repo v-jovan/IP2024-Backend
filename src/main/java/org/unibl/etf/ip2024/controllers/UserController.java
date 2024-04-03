@@ -1,5 +1,6 @@
 package org.unibl.etf.ip2024.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,7 @@ public class UserController {
         this.userEntityRepository = userEntityRepository;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     List<UserEntity> findAll() {
         return userEntityRepository.findAll();

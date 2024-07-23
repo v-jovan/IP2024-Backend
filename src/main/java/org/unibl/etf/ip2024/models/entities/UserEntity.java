@@ -6,6 +6,7 @@ import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.unibl.etf.ip2024.models.enums.Roles;
 
 import java.util.Collection;
 import java.util.List;
@@ -33,9 +34,6 @@ public class UserEntity implements UserDetails {
     @Basic
     @Column(name = "last_name")
     private String lastName;
-    @Basic
-    @Column(name = "city")
-    private String city;
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Roles role;
@@ -66,6 +64,9 @@ public class UserEntity implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "userByUserId")
     private List<UserProgramEntity> userPrograms;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "city_id", referencedColumnName = "id", nullable = false)
+    private CityEntity city;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

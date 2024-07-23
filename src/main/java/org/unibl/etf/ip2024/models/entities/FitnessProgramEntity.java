@@ -3,6 +3,7 @@ package org.unibl.etf.ip2024.models.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.unibl.etf.ip2024.models.enums.DifficultyLevel;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -54,8 +55,3 @@ public class FitnessProgramEntity {
 
 }
 
-enum DifficultyLevel {
-    BEGINNER,
-    INTERMEDIATE,
-    ADVANCED
-}

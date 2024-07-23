@@ -35,47 +35,45 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request.requestMatchers("/auth/**")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated())
-                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configures CORS settings
+                .csrf(AbstractHttpConfigurer::disable) // Disables CSRF protection
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/auth/**").permitAll() // Allows unauthenticated access to /auth/**
+                        .requestMatchers("/uploads/**").permitAll() // Allows unauthenticated access to /uploads/**
+                        .anyRequest().authenticated()) // Requires authentication for any other requests
+                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS)) // Configures stateless session management
+                .authenticationProvider(authenticationProvider()) // Sets the authentication provider
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Adds JWT filter before the UsernamePasswordAuthenticationFilter
         return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(); // Configures BCrypt password encoder
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService.userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setUserDetailsService(userService.userDetailsService()); // Sets the user details service
+        authProvider.setPasswordEncoder(passwordEncoder()); // Sets the password encoder
         return authProvider;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-            throws Exception {
-        return config.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager(); // Retrieves the authentication manager
     }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(List.of("http://localhost:8080"));
-        configuration.setAllowedMethods(List.of("GET", "POST"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:4200")); // Configures allowed origins for CORS
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Configures allowed HTTP methods for CORS
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); // Configures allowed headers for CORS
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", configuration); // Registers the CORS configuration for all paths
 
         return source;
     }

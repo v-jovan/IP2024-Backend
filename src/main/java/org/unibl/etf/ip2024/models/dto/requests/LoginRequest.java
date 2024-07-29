@@ -1,4 +1,4 @@
-package org.unibl.etf.ip2024.models.dto;
+package org.unibl.etf.ip2024.models.dto.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignUpRequest {
-    private String firstName;
-    private String lastName;
-    private String email;
+public class LoginRequest {
+    private String emailOrUsername;
     private String password;
 }

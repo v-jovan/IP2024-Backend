@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface JwtService {
     String extractUserName(String token);
+    String extractUserEmail(String token);
     String generateToken(UserDetails userDetails);
 
     Claims extractAllClaims(String token);

@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.unibl.etf.ip2024.models.dto.CustomUserDetails;
 import org.unibl.etf.ip2024.services.JwtService;
 
 import java.security.Key;
@@ -32,8 +33,13 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
+    public String extractUserEmail(String token) {
+        return extractClaim(token, claims -> claims.get("email", String.class));
+    }
+
+    @Override
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        return generateToken(new HashMap<>(), (CustomUserDetails) userDetails);
     }
 
     @Override
@@ -47,18 +53,17 @@ public class JwtServiceImpl implements JwtService {
         return claimsResolvers.apply(claims);
     }
 
-    private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>(extraClaims);
-
-        List<String> roles = userDetails
-                .getAuthorities()
-                .stream()
-                .map(authority -> "ROLE_" + authority.getAuthority()) // Ensure roles have "ROLE_" prefix
+    private String generateToken(Map<String, Object> extraClaims, CustomUserDetails userDetails) {
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(authority -> "ROLE_" + authority.getAuthority())
                 .collect(Collectors.toList());
-        claims.put("roles", roles);  // Use "roles" as the claim key
+
+        extraClaims.put("roles", roles);  // Use "roles" as the claim key
+        extraClaims.put("email", userDetails.getEmail());
+
         return Jwts
                 .builder()
-                .setClaims(claims)
+                .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
@@ -83,9 +88,9 @@ public class JwtServiceImpl implements JwtService {
                 .getBody();
     }
 
-    public long getExpirationTime() {
-        return jwtExpiration;
-    }
+//    public long getExpirationTime() {
+//        return jwtExpiration;
+//    }
 
     private Key getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSigningKey);

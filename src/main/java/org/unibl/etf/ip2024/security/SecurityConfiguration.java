@@ -1,6 +1,8 @@
 package org.unibl.etf.ip2024.security;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,66 +17,62 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.unibl.etf.ip2024.services.UserService;
-
-import java.util.List;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-@Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
-@RequiredArgsConstructor
+@Configuration // Marks this class as a configuration class
+@EnableWebSecurity // Enables Spring Security for the application
+@EnableMethodSecurity // Enables method-level security
+@RequiredArgsConstructor // Annotation to generate a constructor with final fields
 public class SecurityConfiguration {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class); // Logger for logging information
+    private final JwtAuthenticationFilter jwtAuthenticationFilter; // JWT filter for authentication
+    private final UserService userService; // User service to manage user details
+    private final CorsConfig corsConfig; // CORS configuration bean
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        logger.info("Configuring Security Filter Chain");
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configures CORS settings
-                .csrf(AbstractHttpConfigurer::disable) // Disables CSRF protection
+                .cors(cors -> {
+                    cors.configurationSource(corsConfig.corsConfigurationSource()); // Sets the CORS configuration source
+                    logger.info("CORS configuration applied");
+                })
+                .csrf(AbstractHttpConfigurer::disable) // Disables CSRF protection because... I don't need it right now :D
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**").permitAll() // Allows unauthenticated access to /auth/**
+                        .requestMatchers("/upload/**").permitAll() // Allows unauthenticated access to /upload/**
                         .requestMatchers("/uploads/**").permitAll() // Allows unauthenticated access to /uploads/**
+                        .requestMatchers("/test/**").permitAll() // Allows unauthenticated access to /test/**
+                        .requestMatchers("/cities/**").permitAll() // Allows unauthenticated access to /cities/**
                         .anyRequest().authenticated()) // Requires authentication for any other requests
-                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS)) // Configures stateless session management
+                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS)) // Configures session management to be stateless (jwt)
                 .authenticationProvider(authenticationProvider()) // Sets the authentication provider
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Adds JWT filter before the UsernamePasswordAuthenticationFilter
-        return http.build();
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Adds JWT filter before UsernamePasswordAuthenticationFilter
+        logger.info("Security Filter Chain configured successfully");
+        return http.build(); // Builds the security filter chain
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Configures BCrypt password encoder
+        logger.info("Creating BCryptPasswordEncoder bean");
+        return new BCryptPasswordEncoder(); // Returns a BCrypt password encoder
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
+        logger.info("Configuring DaoAuthenticationProvider");
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService.userDetailsService()); // Sets the user details service
+        authProvider.setUserDetailsService(userService); // Sets the user details service
         authProvider.setPasswordEncoder(passwordEncoder()); // Sets the password encoder
-        return authProvider;
+        logger.info("DaoAuthenticationProvider configured successfully");
+        return authProvider; // Returns the authentication provider
     }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager(); // Retrieves the authentication manager
-    }
-
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:4200")); // Configures allowed origins for CORS
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Configures allowed HTTP methods for CORS
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); // Configures allowed headers for CORS
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Registers the CORS configuration for all paths
-
-        return source;
+        logger.info("Creating AuthenticationManager bean");
+        return config.getAuthenticationManager(); // Retrieves and returns the authentication manager
     }
 }

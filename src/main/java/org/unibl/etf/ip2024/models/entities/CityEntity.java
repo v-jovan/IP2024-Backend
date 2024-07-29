@@ -2,10 +2,12 @@ package org.unibl.etf.ip2024.models.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 @Data
 @Entity
 @Table(name = "city")
+@RequiredArgsConstructor
 public class CityEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -14,4 +16,8 @@ public class CityEntity {
     @Basic
     @Column(name = "name", nullable = false)
     private String name;
+
+    public CityEntity(String name) {
+        this.name = name;
+    }
 }

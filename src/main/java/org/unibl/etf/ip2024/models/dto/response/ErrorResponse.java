@@ -1,4 +1,4 @@
-package org.unibl.etf.ip2024.models.dto;
+package org.unibl.etf.ip2024.models.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.unibl.etf.ip2024.models.entities.UserEntity;
-import org.unibl.etf.ip2024.repositories.UserEntityRepository;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -18,24 +16,20 @@ import java.util.Objects;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/upload")
 @RequiredArgsConstructor
 public class ImageUploadController {
 
     @Value("${upload.path}")
     private String uploadPath;
 
-    private final UserEntityRepository userRepository;
-
-    @PostMapping("/upload")
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("userId") Integer userId) {
+    @PostMapping
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
         try {
             ensureUploadPathExists();
             String fileExtension = getFileExtension(file.getOriginalFilename());
             BufferedImage resizedImage = resizeImage(file);
             String fileName = saveResizedImage(file, resizedImage, fileExtension);
-
-            updateUserAvatarUrl(userId, fileName);
 
             return ResponseEntity.ok("/uploads/" + fileName);
         } catch (IOException e) {
@@ -64,12 +58,6 @@ public class ImageUploadController {
         Path destFile = Paths.get(uploadPath).resolve(fileName);
         ImageIO.write(resizedImage, Objects.requireNonNull(fileExtension), destFile.toFile());
         return fileName;
-    }
-
-    private void updateUserAvatarUrl(Integer userId, String fileName) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Korisnik nije pronađen!"));
-        user.setAvatarUrl("/uploads/" + fileName);
-        userRepository.save(user);
     }
 
     public static String getFileExtension(String fileName) {

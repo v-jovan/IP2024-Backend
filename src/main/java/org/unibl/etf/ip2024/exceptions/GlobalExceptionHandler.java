@@ -64,9 +64,19 @@ public class GlobalExceptionHandler {
             errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
             errorResponse.setMessage(exception.getMessage());
             logger.warn("Invalid token: {}", exception.getMessage());
-        } else {
+        } else if (exception instanceof EmailSendException) {
             errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             errorResponse.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+            errorResponse.setMessage("Greska prilikom slanja emaila: " + exception.getMessage());
+            logger.error("Email send exception: {}", exception.getMessage());
+        } else if (exception instanceof AccountActivationException) {
+            errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+            errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.warn("Account activation error: {}", exception.getMessage());
+        } else {
+            errorResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+            errorResponse.setError(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase());
             errorResponse.setMessage("Došlo je do greške prilikom obrade zahtjeva");
             logger.error("Internal server error: {}", exception.getMessage());
         }

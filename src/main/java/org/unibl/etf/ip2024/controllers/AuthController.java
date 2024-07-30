@@ -19,7 +19,8 @@ public class AuthController {
     // Endpoint for user signup
     @PostMapping("/signup")
     public ResponseEntity<JwtAuthenticationResponse> signup(@RequestBody SignUpRequest request) {
-        return ResponseEntity.ok(this.authenticationService.signup(request));
+        JwtAuthenticationResponse response = this.authenticationService.signup(request);
+        return ResponseEntity.ok(response);
     }
 
     // Endpoint for user login

@@ -1,27 +1,40 @@
 package org.unibl.etf.ip2024.controllers;
 
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.unibl.etf.ip2024.models.entities.UserEntity;
-import org.unibl.etf.ip2024.repositories.UserEntityRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.unibl.etf.ip2024.models.dto.requests.UpdatePasswordRequest;
+import org.unibl.etf.ip2024.models.dto.requests.UpdateUserRequest;
+import org.unibl.etf.ip2024.models.dto.response.UserInfoResponse;
+import org.unibl.etf.ip2024.services.UserService;
 
-import java.util.List;
+import java.security.Principal;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 public class UserController {
+    private final UserService userService;
 
-    private final UserEntityRepository userEntityRepository;
-
-    public UserController(UserEntityRepository userEntityRepository) {
-        this.userEntityRepository = userEntityRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping
-    List<UserEntity> findAll() {
-        return userEntityRepository.findAll();
+    @GetMapping("/info")
+    public ResponseEntity<UserInfoResponse> getUserInfo(Principal principal) {
+        String username = principal.getName();
+        return ResponseEntity.ok(this.userService.getUserInfo(username));
+    }
+
+    @PatchMapping("/info")
+    public ResponseEntity<UserInfoResponse> updateUserInfo(Principal principal, @RequestBody UpdateUserRequest updateUserRequest) {
+        String username = principal.getName();
+        UserInfoResponse updatedUserInfo = this.userService.updateUserInfo(username, updateUserRequest);
+        return ResponseEntity.ok(updatedUserInfo);
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<String> updatePassword(Principal principal, @RequestBody UpdatePasswordRequest updatePasswordRequest) {
+        String username = principal.getName();
+        this.userService.updatePassword(username, updatePasswordRequest);
+        return ResponseEntity.ok("Lozinka uspješno promijenjena!");
     }
 }

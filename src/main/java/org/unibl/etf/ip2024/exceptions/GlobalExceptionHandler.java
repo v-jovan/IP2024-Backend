@@ -74,6 +74,11 @@ public class GlobalExceptionHandler {
             errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
             errorResponse.setMessage(exception.getMessage());
             logger.warn("Account activation error: {}", exception.getMessage());
+        } else if (exception instanceof InvalidOldPasswordException) {
+            errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+            errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.warn("Invalid old password: {}", exception.getMessage());
         } else {
             errorResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
             errorResponse.setError(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase());

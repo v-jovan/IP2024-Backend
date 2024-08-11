@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -30,6 +29,7 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter; // JWT filter for authentication
     private final UserService userService; // User service to manage user details
     private final CorsConfig corsConfig; // CORS configuration bean
+    private final PasswordEncoder passwordEncoder; // Password encoder bean
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -54,18 +54,18 @@ public class SecurityConfiguration {
         return http.build(); // Builds the security filter chain
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        logger.info("Creating BCryptPasswordEncoder bean");
-        return new BCryptPasswordEncoder(); // Returns a BCrypt password encoder
-    }
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        logger.info("Creating BCryptPasswordEncoder bean");
+//        return new BCryptPasswordEncoder(); // Returns a BCrypt password encoder
+//    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         logger.info("Configuring DaoAuthenticationProvider");
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userService); // Sets the user details service
-        authProvider.setPasswordEncoder(passwordEncoder()); // Sets the password encoder
+        authProvider.setPasswordEncoder(passwordEncoder); // Sets the password encoder
         logger.info("DaoAuthenticationProvider configured successfully");
         return authProvider; // Returns the authentication provider
     }

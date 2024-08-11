@@ -2,7 +2,13 @@ package org.unibl.etf.ip2024.services;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.unibl.etf.ip2024.models.dto.requests.UpdatePasswordRequest;
+import org.unibl.etf.ip2024.models.dto.requests.UpdateUserRequest;
+import org.unibl.etf.ip2024.models.dto.response.UserInfoResponse;
 
 @Service
 public interface UserService extends UserDetailsService  {
+    UserInfoResponse getUserInfo(String username);
+    UserInfoResponse updateUserInfo(String username, UpdateUserRequest userInfoResponse);
+    void updatePassword(String username, UpdatePasswordRequest updatePasswordRequest);
 }

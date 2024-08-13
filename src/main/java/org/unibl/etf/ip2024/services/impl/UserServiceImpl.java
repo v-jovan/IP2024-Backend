@@ -104,4 +104,20 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
         userRepository.saveAndFlush(user);
     }
+
+    @Override
+    public String getAvatar(String username) {
+        UserEntity user = userRepository.findByUsername(username).
+                orElseThrow(() -> new UsernameNotFoundException("Korisnik nije pronadjen: " + username));
+
+        return user.getAvatarUrl();
+    }
+
+    @Override
+    public Boolean isActive(String username) {
+        UserEntity user = userRepository.findByUsername(username).
+                orElseThrow(() -> new UsernameNotFoundException("Korisnik nije pronadjen: " + username));
+
+        return user.isActivated();
+    }
 }

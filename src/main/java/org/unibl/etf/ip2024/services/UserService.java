@@ -11,4 +11,6 @@ public interface UserService extends UserDetailsService  {
     UserInfoResponse getUserInfo(String username);
     UserInfoResponse updateUserInfo(String username, UpdateUserRequest userInfoResponse);
     void updatePassword(String username, UpdatePasswordRequest updatePasswordRequest);
+    String getAvatar(String username);
+    Boolean isActive(String username);
 }

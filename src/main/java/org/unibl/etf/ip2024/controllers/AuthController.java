@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.unibl.etf.ip2024.models.dto.requests.CheckUsernameRequest;
+import org.unibl.etf.ip2024.models.dto.requests.ResendEmailRequest;
 import org.unibl.etf.ip2024.models.dto.response.JwtAuthenticationResponse;
 import org.unibl.etf.ip2024.models.dto.requests.LoginRequest;
 import org.unibl.etf.ip2024.models.dto.requests.SignUpRequest;
@@ -45,5 +46,10 @@ public class AuthController {
     public ResponseEntity<Boolean> checkUsername(@RequestBody CheckUsernameRequest request) {
         boolean isTaken = authenticationService.checkUsername(request.getUsername());
         return ResponseEntity.ok(isTaken);
+    }
+
+    @PostMapping("/resend-email")
+    public ResponseEntity<String> resendEmail(@RequestBody ResendEmailRequest request) {
+        return authenticationService.resendEmail(request.getEmail(), request.getToken());
     }
 }

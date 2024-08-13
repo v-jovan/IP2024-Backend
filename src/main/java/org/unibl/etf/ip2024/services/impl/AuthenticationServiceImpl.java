@@ -2,6 +2,7 @@ package org.unibl.etf.ip2024.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -61,6 +62,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String activationLink = frontendUrl + "/auth/activate?token=" + jwt; // Generate an activation link
         emailService.sendActivationEmail(user.getEmail(), activationLink); // Send an activation email to the user
         return JwtAuthenticationResponse.builder().token(jwt).build(); // Return the JWT token
+    }
+
+    @Override
+    public ResponseEntity<String> resendEmail(String email, String token) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserAlreadyExistsException("Korisnik sa ovim emailom ne postoji."));
+
+        String activationLink = frontendUrl + "/auth/activate?token=" + token;
+        emailService.sendActivationEmail(user.getEmail(), activationLink);
+        return ResponseEntity.ok("Email je ponovo poslat.");
     }
 
     @Override

@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.exceptions.EmailSendException;
 import org.unibl.etf.ip2024.services.EmailService;
@@ -15,6 +16,7 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
 
     @Override
+    @Async
     public void sendActivationEmail(String to, String activationLink) {
         try {
             MimeMessage message = mailSender.createMimeMessage();

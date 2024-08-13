@@ -37,4 +37,16 @@ public class UserController {
         this.userService.updatePassword(username, updatePasswordRequest);
         return ResponseEntity.ok("Lozinka uspješno promijenjena!");
     }
+
+    @GetMapping("/avatar")
+    public ResponseEntity<String> getAvatar(Principal principal) {
+        String username = principal.getName();
+        return ResponseEntity.ok(this.userService.getAvatar(username));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<Boolean> isActive(Principal principal) {
+        String username = principal.getName();
+        return ResponseEntity.ok(this.userService.isActive(username));
+    }
 }

@@ -85,20 +85,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (JwtException e) { // Handles JWT exceptions
             logger.error("JWT exception occurred: {}", e.getMessage()); // Logs the JWT exception
-            handleException(request, response, e); // Handles the exception and sets a standardized error response
+            handleException(request, response); // Handles the exception and sets a standardized error response
             return; // Skips further filter processing
         }
 
         filterChain.doFilter(request, response); // Continues the filter chain
     }
 
-    private void handleException(HttpServletRequest request, HttpServletResponse response, Exception e) throws IOException {
+    private void handleException(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ErrorResponse errorResponse = new ErrorResponse(
-                HttpServletResponse.SC_FORBIDDEN,
-                "JWT token nije validan ili je istekao",
-                e.getMessage(),
-                request.getRequestURI()); // Creates an error response object
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN); // Sets the HTTP status to 403 Forbidden
+                HttpServletResponse.SC_UNAUTHORIZED,
+                "JWT_EXPIRED",
+                "Vaša sesija je istekla. Molimo prijavite se ponovo.",
+                request.getRequestURI()
+        );
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Sets the HTTP status to 401 Unauthorized
         response.setContentType(MediaType.APPLICATION_JSON_VALUE); // Sets the response content type to JSON
         response.setCharacterEncoding("UTF-8"); // Sets the response character encoding to UTF-8
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse)); // Writes the error response as JSON to the response

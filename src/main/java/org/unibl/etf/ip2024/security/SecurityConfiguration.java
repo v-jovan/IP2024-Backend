@@ -46,6 +46,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/uploads/**").permitAll() // Allows unauthenticated access to /uploads/**
                         .requestMatchers("/test/**").permitAll() // Allows unauthenticated access to /test/**
                         .requestMatchers("/cities/**").permitAll() // Allows unauthenticated access to /cities/**
+                        .requestMatchers("/news/**").permitAll() // Allows unauthenticated access to /cities/**
                         .anyRequest().authenticated()) // Requires authentication for any other requests
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS)) // Configures session management to be stateless (jwt)
                 .authenticationProvider(authenticationProvider()) // Sets the authentication provider

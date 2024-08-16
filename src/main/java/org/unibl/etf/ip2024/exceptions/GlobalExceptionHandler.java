@@ -79,6 +79,11 @@ public class GlobalExceptionHandler {
             errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
             errorResponse.setMessage(exception.getMessage());
             logger.warn("Invalid old password: {}", exception.getMessage());
+        } else if (exception instanceof RssFeedException) {
+            errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            errorResponse.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+            errorResponse.setMessage("Error processing RSS feed: " + exception.getMessage());
+            logger.error("RSS feed error: {}", exception.getMessage());
         } else {
             errorResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
             errorResponse.setError(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase());

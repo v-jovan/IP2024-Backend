@@ -89,7 +89,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return; // Skips further filter processing
         }
 
-        filterChain.doFilter(request, response); // Continues the filter chain
+        filterChain.doFilter(request, response);
     }
 
     private void handleException(HttpServletRequest request, HttpServletResponse response) throws IOException {

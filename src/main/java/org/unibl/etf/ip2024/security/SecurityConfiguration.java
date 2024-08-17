@@ -55,12 +55,6 @@ public class SecurityConfiguration {
         return http.build(); // Builds the security filter chain
     }
 
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        logger.info("Creating BCryptPasswordEncoder bean");
-//        return new BCryptPasswordEncoder(); // Returns a BCrypt password encoder
-//    }
-
     @Bean
     public AuthenticationProvider authenticationProvider() {
         logger.info("Configuring DaoAuthenticationProvider");

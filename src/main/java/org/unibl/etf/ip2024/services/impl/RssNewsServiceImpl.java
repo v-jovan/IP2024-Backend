@@ -43,7 +43,7 @@ public class RssNewsServiceImpl implements RssNewsService {
             }
 
         } catch (Exception e) {
-            throw new RssFeedException("Error retrieving or parsing RSS feed: " + e.getMessage(), e);
+            throw new RssFeedException("Greska pri dobavljanju RSS feed-a: " + e.getMessage(), e);
         }
         return rssItems;
     }

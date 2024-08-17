@@ -82,8 +82,13 @@ public class GlobalExceptionHandler {
         } else if (exception instanceof RssFeedException) {
             errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             errorResponse.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-            errorResponse.setMessage("Error processing RSS feed: " + exception.getMessage());
+            errorResponse.setMessage(exception.getMessage());
             logger.error("RSS feed error: {}", exception.getMessage());
+        } else if (exception instanceof ExerciseFetchException) {
+            errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            errorResponse.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.error("Exercise fetch error: {}", exception.getMessage());
         } else {
             errorResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
             errorResponse.setError(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase());

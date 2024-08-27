@@ -89,6 +89,41 @@ public class GlobalExceptionHandler {
             errorResponse.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
             errorResponse.setMessage(exception.getMessage());
             logger.error("Exercise fetch error: {}", exception.getMessage());
+        } else if (exception instanceof CategoryNotFoundException) {
+            errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
+            errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.error("Category not found: {}", exception.getMessage());
+        } else if (exception instanceof LocationNotFoundException) {
+            errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
+            errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.error("Location not found: {}", exception.getMessage());
+        } else if (exception instanceof CategoryAlreadyExistsException) {
+            errorResponse.setStatus(HttpStatus.CONFLICT.value());
+            errorResponse.setError(HttpStatus.CONFLICT.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.error("Category already exists: {}", exception.getMessage());
+        } else if (exception instanceof LocationAlreadyExistsException) {
+            errorResponse.setStatus(HttpStatus.CONFLICT.value());
+            errorResponse.setError(HttpStatus.CONFLICT.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.error("Location already exists: {}", exception.getMessage());
+        } else if (exception instanceof ProgramAlreadyExistsException) {
+            errorResponse.setStatus(HttpStatus.CONFLICT.value());
+            errorResponse.setError(HttpStatus.CONFLICT.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.error("Program already exists: {}", exception.getMessage());
+        } else if (exception instanceof ImageUploadException) {
+            errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            errorResponse.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.error("Image upload error: {}", exception.getMessage());
+        } else if (exception instanceof AttributeValueNotFoundException) {
+            errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
+            errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.error("Attribute value not found: {}", exception.getMessage());
         } else {
             errorResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
             errorResponse.setError(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase());

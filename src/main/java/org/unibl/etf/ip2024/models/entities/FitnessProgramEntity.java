@@ -37,6 +37,9 @@ public class FitnessProgramEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "fitnessProgram")
     private List<CommentEntity> comments;
+    @JsonIgnore
+    @OneToMany(mappedBy = "fitnessProgram")
+    private List<ProgramImageEntity> programImages;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
     private CategoryEntity category;

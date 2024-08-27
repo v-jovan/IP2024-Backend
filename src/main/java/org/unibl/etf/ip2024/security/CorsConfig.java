@@ -16,7 +16,7 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:4200")); // Sets allowed origins for CORS
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")); // Sets allowed HTTP methods for CORS
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); // Sets allowed headers for CORS
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "multipart/form-data")); // Sets allowed headers for CORS
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // Registers the CORS configuration for all paths

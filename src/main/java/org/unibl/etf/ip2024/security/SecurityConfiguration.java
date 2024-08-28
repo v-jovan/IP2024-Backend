@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -46,7 +47,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/uploads/**").permitAll() // Allows unauthenticated access to /uploads/**
                         .requestMatchers("/test/**").permitAll() // Allows unauthenticated access to /test/**
                         .requestMatchers("/cities/**").permitAll() // Allows unauthenticated access to /cities/**
-                        .requestMatchers("/news/**").permitAll() // Allows unauthenticated access to /cities/**
+                        .requestMatchers("/news/**").permitAll() // Allows unauthenticated access to /news/**
+                        .requestMatchers(HttpMethod.GET,"/programs").permitAll() // Allows unauthenticated GET access to /programs
                         .anyRequest().authenticated()) // Requires authentication for any other requests
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS)) // Configures session management to be stateless (jwt)
                 .authenticationProvider(authenticationProvider()) // Sets the authentication provider

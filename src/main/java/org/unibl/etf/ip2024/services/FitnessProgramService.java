@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.unibl.etf.ip2024.models.dto.requests.FitnessProgramRequest;
+import org.unibl.etf.ip2024.models.dto.response.FitnessProgramListResponse;
 import org.unibl.etf.ip2024.models.dto.response.FitnessProgramResponse;
 
 import java.io.IOException;
@@ -14,4 +15,6 @@ import java.util.List;
 public interface FitnessProgramService {
     @Transactional
     FitnessProgramResponse addFitnessProgram(Principal principal, FitnessProgramRequest fitnessProgramRequest, List<MultipartFile> files) throws IOException;
+    @Transactional
+    List<FitnessProgramListResponse> getFitnessPrograms(Principal principal);
 }

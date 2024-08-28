@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.unibl.etf.ip2024.exceptions.*;
 import org.unibl.etf.ip2024.models.dto.requests.FitnessProgramRequest;
+import org.unibl.etf.ip2024.models.dto.response.FitnessProgramListResponse;
 import org.unibl.etf.ip2024.models.dto.response.FitnessProgramResponse;
 import org.unibl.etf.ip2024.models.entities.*;
 import org.unibl.etf.ip2024.repositories.*;
@@ -108,4 +109,45 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
 
         return new FitnessProgramResponse(savedProgram.getId());
     }
+
+    @Override
+    @Transactional
+    public List<FitnessProgramListResponse> getFitnessPrograms(Principal principal) {
+        List<FitnessProgramEntity> programs;
+
+        if (principal != null) {
+            UserEntity user = userRepository.findByUsername(principal.getName())
+                    .orElseThrow(() -> new UserNotFoundException("Korisnik nije pronađen"));
+            programs = fitnessProgramRepository.findAllByUserId(user.getId());
+        } else {
+            programs = fitnessProgramRepository.findAll();
+        }
+
+        List<FitnessProgramListResponse> response = new ArrayList<>();
+
+        for (FitnessProgramEntity program : programs) {
+            FitnessProgramListResponse programResponse = getFitnessProgramListResponse(program);
+            response.add(programResponse);
+        }
+
+        return response;
+    }
+
+    private static FitnessProgramListResponse getFitnessProgramListResponse(FitnessProgramEntity program) {
+        FitnessProgramListResponse programResponse = new FitnessProgramListResponse();
+        programResponse.setId(program.getId());
+        programResponse.setName(program.getName());
+        programResponse.setDescription(program.getDescription());
+        programResponse.setPrice(program.getPrice());
+        programResponse.setDuration(program.getDuration());
+        programResponse.setDifficultyLevel(program.getDifficultyLevel());
+        programResponse.setYoutubeUrl(program.getYoutubeUrl());
+
+        if (program.getLocation() != null) {
+            programResponse.setLocationName(program.getLocation().getName());
+        }
+
+        return programResponse;
+    }
+
 }

@@ -3,6 +3,10 @@ package org.unibl.etf.ip2024.controllers;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FitnessProgramController {
     private final FitnessProgramService fitnessProgramService;
-
     Logger log = LoggerFactory.getLogger(FitnessProgramController.class);
 
     @PostMapping(consumes = {"multipart/form-data"})
@@ -43,17 +46,38 @@ public class FitnessProgramController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<FitnessProgramListResponse>> getMyPrograms() {
-        List<FitnessProgramListResponse> programs = fitnessProgramService.getFitnessPrograms(null);
+    public ResponseEntity<Page<FitnessProgramListResponse>> getPrograms(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam(value = "sort", required = false) String sort) {
+        Pageable pageable = createPageable(page, size, sort);
+        Page<FitnessProgramListResponse> programs = fitnessProgramService.getFitnessPrograms(null, pageable);
         return ResponseEntity.ok(programs);
     }
 
     @GetMapping("/my-programs")
-    public ResponseEntity<List<FitnessProgramListResponse>> getMyPrograms(Principal principal) {
-        List<FitnessProgramListResponse> programs = fitnessProgramService.getFitnessPrograms(principal);
+    public ResponseEntity<Page<FitnessProgramListResponse>> getMyPrograms(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam(value = "sort", required = false) String sort,
+            Principal principal) {
+        Pageable pageable = createPageable(page, size, sort);
+        Page<FitnessProgramListResponse> programs = fitnessProgramService.getFitnessPrograms(principal, pageable);
         return ResponseEntity.ok(programs);
     }
 
-
-
+    private Pageable createPageable(int page, int size, String sort) {
+        if (sort != null && !sort.isEmpty()) {
+            String[] sortParams = sort.split(",");
+            if (sortParams.length == 2) {
+                String sortField = sortParams[0];
+                Sort.Direction direction = Sort.Direction.fromString(sortParams[1]);
+                return PageRequest.of(page, size, Sort.by(direction, sortField));
+            } else {
+                return PageRequest.of(page, size);
+            }
+        } else {
+            return PageRequest.of(page, size, Sort.unsorted());
+        }
+    }
 }

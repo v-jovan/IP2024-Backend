@@ -2,6 +2,8 @@ package org.unibl.etf.ip2024.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.unibl.etf.ip2024.exceptions.*;
@@ -112,28 +114,20 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
 
     @Override
     @Transactional
-    public List<FitnessProgramListResponse> getFitnessPrograms(Principal principal) {
-        List<FitnessProgramEntity> programs;
-
+    public Page<FitnessProgramListResponse> getFitnessPrograms(Principal principal, Pageable pageable) {
+        Page<FitnessProgramEntity> programs;
         if (principal != null) {
             UserEntity user = userRepository.findByUsername(principal.getName())
                     .orElseThrow(() -> new UserNotFoundException("Korisnik nije pronađen"));
-            programs = fitnessProgramRepository.findAllByUserId(user.getId());
+            programs = fitnessProgramRepository.findAllByUserId(user.getId(), pageable);
         } else {
-            programs = fitnessProgramRepository.findAll();
+            programs = fitnessProgramRepository.findAll(pageable);
         }
 
-        List<FitnessProgramListResponse> response = new ArrayList<>();
-
-        for (FitnessProgramEntity program : programs) {
-            FitnessProgramListResponse programResponse = getFitnessProgramListResponse(program);
-            response.add(programResponse);
-        }
-
-        return response;
+        return programs.map(this::getFitnessProgramListResponse);
     }
 
-    private static FitnessProgramListResponse getFitnessProgramListResponse(FitnessProgramEntity program) {
+    private FitnessProgramListResponse getFitnessProgramListResponse(FitnessProgramEntity program) {
         FitnessProgramListResponse programResponse = new FitnessProgramListResponse();
         programResponse.setId(program.getId());
         programResponse.setName(program.getName());

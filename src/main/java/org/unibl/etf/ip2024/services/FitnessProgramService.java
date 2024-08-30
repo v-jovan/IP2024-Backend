@@ -1,6 +1,8 @@
 package org.unibl.etf.ip2024.services;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.unibl.etf.ip2024.models.dto.requests.FitnessProgramRequest;
@@ -16,5 +18,5 @@ public interface FitnessProgramService {
     @Transactional
     FitnessProgramResponse addFitnessProgram(Principal principal, FitnessProgramRequest fitnessProgramRequest, List<MultipartFile> files) throws IOException;
     @Transactional
-    List<FitnessProgramListResponse> getFitnessPrograms(Principal principal);
+    Page<FitnessProgramListResponse> getFitnessPrograms(Principal principal, Pageable pageable);
 }

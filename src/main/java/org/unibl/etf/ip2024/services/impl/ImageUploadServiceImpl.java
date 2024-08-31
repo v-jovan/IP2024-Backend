@@ -55,4 +55,11 @@ public class ImageUploadServiceImpl implements ImageUploadService {
         }
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
+
+    public void deleteImageFile(String imageUrl) throws IOException {
+        Path filePath = Paths.get(uploadPath, imageUrl.substring("/uploads/".length()));
+        if (Files.exists(filePath)) {
+            Files.delete(filePath);
+        }
+    }
 }

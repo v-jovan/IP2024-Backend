@@ -8,4 +8,5 @@ import java.io.IOException;
 @Service
 public interface ImageUploadService {
     String uploadImage(MultipartFile file) throws IOException;
+    void deleteImageFile(String imageUrl) throws IOException;
 }

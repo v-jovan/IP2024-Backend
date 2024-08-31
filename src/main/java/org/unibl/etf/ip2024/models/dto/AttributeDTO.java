@@ -10,4 +10,5 @@ public class AttributeDTO {
     private String name;
     private String description;
     private List<AttributeValueDTO> values;
+    private AttributeValueDTO selectedValue;
 }

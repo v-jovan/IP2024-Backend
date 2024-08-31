@@ -19,4 +19,7 @@ public interface FitnessProgramService {
     FitnessProgramResponse addFitnessProgram(Principal principal, FitnessProgramRequest fitnessProgramRequest, List<MultipartFile> files) throws IOException;
     @Transactional
     Page<FitnessProgramListResponse> getFitnessPrograms(Principal principal, Pageable pageable);
+    FitnessProgramResponse getFitnessProgram(Integer id);
+    @Transactional
+    FitnessProgramResponse updateFitnessProgram(Integer programId, FitnessProgramRequest fitnessProgramRequest, List<MultipartFile> files, List<String> removedImages) throws IOException;
 }

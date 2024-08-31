@@ -66,6 +66,24 @@ public class FitnessProgramController {
         return ResponseEntity.ok(programs);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<FitnessProgramResponse> updateProgram(
+            @PathVariable Integer id,
+            @RequestPart("program") FitnessProgramRequest programRequest,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "removedImages", required = false) List<String> removedImages) {
+        log.info("Updating program with id: {}", id);
+        try {
+            FitnessProgramResponse response = fitnessProgramService.updateFitnessProgram(id, programRequest, files, removedImages);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            log.error("Error while updating program", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     private Pageable createPageable(int page, int size, String sort) {
         if (sort != null && !sort.isEmpty()) {
             String[] sortParams = sort.split(",");
@@ -80,4 +98,11 @@ public class FitnessProgramController {
             return PageRequest.of(page, size, Sort.unsorted());
         }
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<FitnessProgramResponse> getProgramById(@PathVariable Integer id) {
+        FitnessProgramResponse programResponse = fitnessProgramService.getFitnessProgram(id);
+        return ResponseEntity.ok(programResponse);
+    }
+
 }

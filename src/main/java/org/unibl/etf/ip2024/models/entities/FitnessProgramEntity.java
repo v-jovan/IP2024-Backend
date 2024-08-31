@@ -47,7 +47,7 @@ public class FitnessProgramEntity {
     @JoinColumn(name = "instructor_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "location_id", referencedColumnName = "id")
     private LocationEntity location;
     @JsonIgnore
     @OneToMany(mappedBy = "fitnessProgram")

@@ -124,6 +124,11 @@ public class GlobalExceptionHandler {
             errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
             errorResponse.setMessage(exception.getMessage());
             logger.error("Attribute value not found: {}", exception.getMessage());
+        } else if (exception instanceof ProgramNotFoundException) {
+            errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
+            errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.error("Program not found: {}", exception.getMessage());
         } else {
             errorResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
             errorResponse.setError(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase());

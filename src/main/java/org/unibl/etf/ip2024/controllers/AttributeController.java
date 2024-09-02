@@ -20,11 +20,21 @@ import java.util.List;
 public class AttributeController {
 
     private static final Logger logger = LoggerFactory.getLogger(AttributeController.class);
-
     private final AttributeService attributeService;
+
+    @GetMapping
+    public ResponseEntity<List<AttributeDTO>> getAllAttributesWithValues() {
+        List<AttributeDTO> attributes = attributeService.getAllAttributesWithValues();
+        return ResponseEntity.ok(attributes);
+    }
 
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<AttributeDTO>> getAttributesByCategoryId(@PathVariable Integer categoryId) {
+        if (categoryId == null) {
+            logger.error("Category ID is null");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         logger.info("Received request to get attributes for category ID: {}", categoryId);
         try {
             List<AttributeDTO> attributes = attributeService.getAttributesByCategoryId(categoryId);
@@ -32,7 +42,8 @@ public class AttributeController {
             return ResponseEntity.ok(attributes);
         } catch (Exception ex) {
             logger.error("An unexpected error occurred", ex);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 }

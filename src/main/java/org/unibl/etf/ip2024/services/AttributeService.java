@@ -8,4 +8,5 @@ import java.util.List;
 @Service
 public interface AttributeService {
     List<AttributeDTO> getAttributesByCategoryId(Integer categoryId);
+    List<AttributeDTO> getAllAttributesWithValues();
 }

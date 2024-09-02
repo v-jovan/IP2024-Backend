@@ -2,6 +2,7 @@ package org.unibl.etf.ip2024.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.unibl.etf.ip2024.exceptions.*;
 import org.unibl.etf.ip2024.models.dto.AttributeDTO;
 import org.unibl.etf.ip2024.models.dto.AttributeValueDTO;
+import org.unibl.etf.ip2024.models.dto.CategoryDTO;
 import org.unibl.etf.ip2024.models.dto.requests.FitnessProgramRequest;
+import org.unibl.etf.ip2024.models.dto.response.FitnessProgramHomeResponse;
 import org.unibl.etf.ip2024.models.dto.response.FitnessProgramListResponse;
 import org.unibl.etf.ip2024.models.dto.response.FitnessProgramResponse;
 import org.unibl.etf.ip2024.models.entities.*;
@@ -36,7 +39,23 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
     private final ImageUploadService imageUploadService;
     private final ProgramAttributeEntityRepository programAttributeRepository;
     private final AttributeValueEntityRepository attributeValueRepository;
+    private final ModelMapper modelMapper;
 
+    /**
+     * Adds a new fitness program based on the provided request and files.
+     *
+     * @param principal             the security principal of the authenticated user
+     * @param fitnessProgramRequest the request object containing the details of the fitness program to be added
+     * @param files                 the list of files to be associated with the fitness program, can be null
+     * @return a FitnessProgramResponse object containing the ID of the newly created fitness program
+     * @throws IOException                     if an I/O error occurs during file upload
+     * @throws ProgramAlreadyExistsException   if a fitness program with the same name already exists
+     * @throws IllegalArgumentException        if the program is neither online nor offline, or both
+     * @throws CategoryNotFoundException       if the specified category is not found
+     * @throws UserNotFoundException           if the authenticated user is not found
+     * @throws LocationNotFoundException       if the specified location is not found
+     * @throws AttributeValueNotFoundException if a specified attribute value is not found
+     */
     @Override
     @Transactional
     public FitnessProgramResponse addFitnessProgram(Principal principal, FitnessProgramRequest fitnessProgramRequest, List<MultipartFile> files) throws IOException {
@@ -115,31 +134,54 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
         return new FitnessProgramResponse(savedProgram.getId());
     }
 
+    /**
+     * Retrieves the fitness programs created by the authenticated user.
+     *
+     * @param principal the security principal of the authenticated user
+     * @param pageable  the pagination information
+     * @return a Page of FitnessProgramListResponse objects
+     * @throws UserNotFoundException if the authenticated user is not found
+     */
     @Override
     @Transactional
-    public Page<FitnessProgramListResponse> getFitnessPrograms(Principal principal, Pageable pageable) {
+    public Page<FitnessProgramListResponse> getMyFitnessPrograms(Principal principal, Pageable pageable) {
         Page<FitnessProgramEntity> programs;
-        if (principal != null) {
-            UserEntity user = userRepository.findByUsername(principal.getName())
-                    .orElseThrow(() -> new UserNotFoundException("Korisnik nije pronađen"));
-            programs = fitnessProgramRepository.findAllByUserId(user.getId(), pageable);
-        } else {
-            programs = fitnessProgramRepository.findAll(pageable);
-        }
+        UserEntity user = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new UserNotFoundException("Korisnik nije pronađen"));
+        programs = fitnessProgramRepository.findAllByUserId(user.getId(), pageable);
 
         return programs.map(this::getFitnessProgramListResponse);
     }
 
+    /**
+     * Retrieves all fitness programs with pagination.
+     *
+     * @param pageable the pagination information
+     * @return a Page of FitnessProgramHomeResponse objects
+     */
+    @Override
+    @Transactional
+    public Page<FitnessProgramHomeResponse> getAllFitnessPrograms(Pageable pageable) {
+        Page<FitnessProgramEntity> programs = fitnessProgramRepository.findAll(pageable);
+        return programs.map(this::getFitnessProgramHomeResponse);
+    }
+
+    /**
+     * Retrieves a specific fitness program by its ID.
+     *
+     * @param id the ID of the fitness program to retrieve
+     * @return a FitnessProgramResponse object containing the details of the fitness program
+     * @throws ProgramNotFoundException if the fitness program with the specified ID is not found
+     */
     @Override
     public FitnessProgramResponse getFitnessProgram(Integer id) {
-
         FitnessProgramEntity programEntity = fitnessProgramRepository.findById(id)
                 .orElseThrow(() -> new ProgramNotFoundException("Program sa ID-jem " + id + " nije pronađen."));
 
-        // Create a new FitnessPRogramDTO
+        // Create a new FitnessProgramResponse
         FitnessProgramResponse response = new FitnessProgramResponse();
 
-        // Set the fields in the DTO
+        // Set the fields in the response
         response.setId(programEntity.getId());
         response.setName(programEntity.getName());
         response.setDescription(programEntity.getDescription());
@@ -174,6 +216,21 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
         return response;
     }
 
+    /**
+     * Updates an existing fitness program based on the provided request and files.
+     *
+     * @param programId             the ID of the fitness program to update
+     * @param fitnessProgramRequest the request object containing the updated details of the fitness program
+     * @param files                 the list of new files to be associated with the fitness program, can be null
+     * @param removedImages         the list of image filenames to be removed from the fitness program, can be null
+     * @return a FitnessProgramResponse object containing the ID of the updated fitness program
+     * @throws IOException                     if an I/O error occurs during file upload or deletion
+     * @throws ProgramNotFoundException        if the fitness program with the specified ID is not found
+     * @throws CategoryNotFoundException       if the specified category is not found
+     * @throws LocationNotFoundException       if the specified location is not found
+     * @throws AttributeValueNotFoundException if a specified attribute value is not found
+     * @throws ImageUploadException            if an error occurs during image upload
+     */
     @Override
     public FitnessProgramResponse updateFitnessProgram(Integer programId, FitnessProgramRequest fitnessProgramRequest, List<MultipartFile> files, List<String> removedImages) throws IOException {
         FitnessProgramEntity fitnessProgramEntity = fitnessProgramRepository.findById(programId)
@@ -247,6 +304,113 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
         return new FitnessProgramResponse(fitnessProgramEntity.getId());
     }
 
+    /**
+     * Retrieves all fitness programs filtered by a specific attribute value with pagination.
+     *
+     * @param attributeValueId the ID of the attribute value to filter by
+     * @param pageable         the pagination information
+     * @return a Page of FitnessProgramHomeResponse objects
+     */
+    @Override
+    public Page<FitnessProgramHomeResponse> getAllFitnessProgramsByAttributeValue(Integer attributeValueId, Pageable pageable) {
+        Page<FitnessProgramEntity> programs = fitnessProgramRepository.findDistinctByProgramAttributes_AttributeValue_Id(attributeValueId, pageable);
+        return programs.map(this::getFitnessProgramHomeResponse);
+    }
+
+    /**
+     * Retrieves all fitness programs filtered by a specific attribute ID with pagination.
+     *
+     * @param attributeId the ID of the attribute to filter by
+     * @param pageable    the pagination information
+     * @return a Page of FitnessProgramHomeResponse objects
+     */
+    @Override
+    public Page<FitnessProgramHomeResponse> getAllFitnessProgramsByAttributeId(Integer attributeId, Pageable pageable) {
+        List<AttributeValueEntity> attributeValues = attributeValueRepository.findByAttributeId(attributeId);
+        List<Integer> attributeValueIds = attributeValues
+                .stream()
+                .map(AttributeValueEntity::getId)
+                .collect(Collectors.toList());
+        Page<FitnessProgramEntity> programs = fitnessProgramRepository.findDistinctByProgramAttributes_AttributeValue_IdIn(attributeValueIds, pageable);
+        return programs.map(this::getFitnessProgramHomeResponse);
+    }
+
+    /**
+     * Retrieves all fitness programs filtered by a specific category ID with pagination.
+     *
+     * @param categoryId the ID of the category to filter by
+     * @param pageable   the pagination information
+     * @return a Page of FitnessProgramHomeResponse objects
+     */
+    @Override
+    public Page<FitnessProgramHomeResponse> getAllFitnessProgramsByCategoryId(Integer categoryId, Pageable pageable) {
+        Page<FitnessProgramEntity> programs = fitnessProgramRepository.findAllByCategoryId(categoryId, pageable);
+        return programs.map(this::getFitnessProgramHomeResponse);
+    }
+
+    /**
+     * Retrieves all categories with their associated attributes and attribute values.
+     * Only categories with non-empty attributes are included in the result.
+     *
+     * @return a list of CategoryDTO objects with their attributes and attribute values
+     */
+    @Override
+    public List<CategoryDTO> getAllCategoriesWithAttributesAndValues() {
+        List<CategoryEntity> categories = categoryRepository.findAllWithProgramsAndAttributesAndValues();
+
+        return categories.stream()
+                .map(this::convertToCategoryDTO)
+                .filter(categoryDTO -> !categoryDTO.getAttributes().isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Converts a CategoryEntity to a CategoryDTO.
+     *
+     * @param categoryEntity the CategoryEntity to convert
+     * @return the converted CategoryDTO
+     */
+    private CategoryDTO convertToCategoryDTO(CategoryEntity categoryEntity) {
+        CategoryDTO categoryDTO = new CategoryDTO();
+        categoryDTO.setId(categoryEntity.getId());
+        categoryDTO.setName(categoryEntity.getName());
+        categoryDTO.setDescription(categoryEntity.getDescription());
+
+        List<AttributeDTO> attributes = categoryEntity.getAttributes().stream()
+                .map(this::convertToAttributeDTO)
+                .filter(attributeDTO -> !attributeDTO.getValues().isEmpty())
+                .collect(Collectors.toList());
+
+        categoryDTO.setAttributes(attributes);
+
+        return categoryDTO;
+    }
+
+    /**
+     * Converts an AttributeEntity to an AttributeDTO.
+     *
+     * @param attributeEntity the AttributeEntity to convert
+     * @return the converted AttributeDTO
+     */
+    private AttributeDTO convertToAttributeDTO(AttributeEntity attributeEntity) {
+        AttributeDTO attributeDTO = modelMapper.map(attributeEntity, AttributeDTO.class);
+
+        attributeDTO.setValues(
+                attributeEntity.getAttributeValues().stream()
+                        .filter(value -> !value.getProgramAttributes().isEmpty())
+                        .map(value -> new AttributeValueDTO(value.getId(), value.getName()))
+                        .collect(Collectors.toList())
+        );
+
+        return attributeDTO;
+    }
+
+    /**
+     * Converts a ProgramAttributeEntity to an AttributeDTO.
+     *
+     * @param programAttribute the ProgramAttributeEntity to convert
+     * @return the converted AttributeDTO
+     */
     private AttributeDTO getAttributeDTO(ProgramAttributeEntity programAttribute) {
         AttributeDTO attributeDTO = new AttributeDTO();
         attributeDTO.setId(
@@ -291,7 +455,12 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
         return attributeDTO;
     }
 
-
+    /**
+     * Converts a FitnessProgramEntity to a FitnessProgramListResponse.
+     *
+     * @param program the FitnessProgramEntity to convert
+     * @return the converted FitnessProgramListResponse
+     */
     private FitnessProgramListResponse getFitnessProgramListResponse(FitnessProgramEntity program) {
         FitnessProgramListResponse programResponse = new FitnessProgramListResponse();
         programResponse.setId(program.getId());
@@ -309,4 +478,25 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
         return programResponse;
     }
 
+    /**
+     * Converts a FitnessProgramEntity to a FitnessProgramHomeResponse.
+     *
+     * @param program the FitnessProgramEntity to convert
+     * @return the converted FitnessProgramHomeResponse
+     */
+    private FitnessProgramHomeResponse getFitnessProgramHomeResponse(FitnessProgramEntity program) {
+        FitnessProgramHomeResponse programResponse = new FitnessProgramHomeResponse();
+        programResponse.setId(program.getId());
+        programResponse.setName(program.getName());
+        programResponse.setPrice(program.getPrice());
+
+        List<String> imageUrls = program
+                .getProgramImages()
+                .stream()
+                .map(ProgramImageEntity::getImageUrl)
+                .collect(Collectors.toList());
+        programResponse.setImages(imageUrls);
+
+        return programResponse;
+    }
 }

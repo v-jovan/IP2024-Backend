@@ -49,8 +49,10 @@ public class SecurityConfiguration {
                         .requestMatchers("/cities/**").permitAll() // Allows unauthenticated access to /cities/**
                         .requestMatchers("/news/**").permitAll() // Allows unauthenticated access to /news/**
                         .requestMatchers(HttpMethod.GET, "/programs").permitAll() // Allows unauthenticated GET access to /programs
+                        .requestMatchers(HttpMethod.GET, "/programs/{id}").permitAll() // Allows unauthenticated GET access to /programs
                         .requestMatchers(HttpMethod.GET, "/programs/with-attributes").permitAll() // Allows unauthenticated GET access to /programs/with-attributes
                         .requestMatchers(HttpMethod.GET, "/attributes").permitAll() // Allows unauthenticated GET access to /attributes
+                        .requestMatchers(HttpMethod.GET, "/comments").permitAll() // Allows unauthenticated GET access to /comments
                         .anyRequest().authenticated()) // Requires authentication for any other requests
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS)) // Configures session management to be stateless (jwt)
                 .authenticationProvider(authenticationProvider()) // Sets the authentication provider

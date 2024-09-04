@@ -189,14 +189,19 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
         response.setPrice(programEntity.getPrice());
         response.setDifficultyLevel(programEntity.getDifficultyLevel());
         response.setYoutubeUrl(programEntity.getYoutubeUrl());
+        response.setInstructorName(this.generateInstructorName(programEntity.getUser()));
 
         // Map the location
         if (programEntity.getLocation() != null) {
             response.setLocationId(programEntity.getLocation().getId());
+            response.setLocationName(programEntity.getLocation().getName());
         }
 
         // Map the category
-        response.setCategoryId(programEntity.getCategory().getId());
+        if (programEntity.getCategory() != null) {
+            response.setCategoryId(programEntity.getCategory().getId());
+            response.setCategoryName(programEntity.getCategory().getName());
+        }
 
         // Map the specific attributes
         List<AttributeDTO> specificAttributes = programEntity
@@ -498,5 +503,25 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
         programResponse.setImages(imageUrls);
 
         return programResponse;
+    }
+
+    private String generateInstructorName(UserEntity user) {
+        String firstName = user.getFirstName();
+        String lastName = user.getLastName();
+        String username = user.getUsername();
+
+        String instructorName;
+
+        if (firstName != null && !firstName.isEmpty() && lastName != null && !lastName.isEmpty()) {
+            instructorName = firstName + " " + lastName;
+        } else if (firstName != null && !firstName.isEmpty()) {
+            instructorName = firstName;
+        } else if (lastName != null && !lastName.isEmpty()) {
+            instructorName = lastName;
+        } else {
+            instructorName = username;
+        }
+
+        return instructorName;
     }
 }

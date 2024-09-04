@@ -20,7 +20,10 @@ public class FitnessProgramResponse {
     private DifficultyLevel difficultyLevel;
     private String youtubeUrl;
     private Integer locationId;
+    private String locationName;
     private Integer categoryId;
+    private String categoryName;
+    private String instructorName;
     private List<AttributeDTO> specificAttributes;
     private List<String> images;
 

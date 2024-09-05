@@ -16,7 +16,6 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class CommentController {
 
-
     private final CommentService commentService;
 
     @GetMapping

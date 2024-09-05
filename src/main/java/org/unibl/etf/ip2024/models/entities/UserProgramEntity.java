@@ -2,6 +2,7 @@ package org.unibl.etf.ip2024.models.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.unibl.etf.ip2024.models.enums.Status;
 
 import java.sql.Date;
 
@@ -31,6 +32,3 @@ public class UserProgramEntity {
 
 }
 
-enum Status {
-    ACTIVE, INACTIVE
-}

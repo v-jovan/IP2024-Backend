@@ -3,6 +3,7 @@ package org.unibl.etf.ip2024.models.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 @Data
@@ -24,7 +25,7 @@ public class ActivityEntity {
     private String intensity;
     @Basic
     @Column(name = "result", nullable = false)
-    private Integer result;
+    private BigDecimal result;
     @Basic
     @Column(name = "log_date", nullable = false)
     private Date logDate;

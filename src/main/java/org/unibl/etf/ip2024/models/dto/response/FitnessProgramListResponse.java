@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.unibl.etf.ip2024.models.enums.DifficultyLevel;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 
 @Data
 @AllArgsConstructor
@@ -19,4 +20,9 @@ public class FitnessProgramListResponse {
     private DifficultyLevel difficultyLevel;
     private String youtubeUrl;
     private String locationName;
+    private Date startDate;
+    private Date endDate;
+    private String status;
+    private String instructorName;
+    private Integer instructorId;
 }

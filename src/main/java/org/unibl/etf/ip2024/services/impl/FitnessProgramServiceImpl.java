@@ -39,6 +39,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
     private final ImageUploadService imageUploadService;
     private final ProgramAttributeEntityRepository programAttributeRepository;
     private final AttributeValueEntityRepository attributeValueRepository;
+    private final UserProgramEntityRepository userProgramRepository;
     private final ModelMapper modelMapper;
 
     /**
@@ -190,6 +191,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
         response.setDifficultyLevel(programEntity.getDifficultyLevel());
         response.setYoutubeUrl(programEntity.getYoutubeUrl());
         response.setInstructorName(this.generateInstructorName(programEntity.getUser()));
+        response.setInstructorId(programEntity.getUser().getId());
 
         // Map the location
         if (programEntity.getLocation() != null) {
@@ -268,9 +270,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
                 programImageRepository.delete(imageEntity);
                 try {
                     this.imageUploadService.deleteImageFile(imageUrl);
-                } catch (IOException e) {
-                    System.err.println("Greška prilikom brisanja slike sa diska: " + imageUrl);
-                    // TODO: Add something better here
+                } catch (IOException ignored) {
                 }
             }
         }
@@ -368,6 +368,48 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
                 .filter(categoryDTO -> !categoryDTO.getAttributes().isEmpty())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Page<FitnessProgramListResponse> getUserPrograms(Principal principal, Pageable pageable) {
+        UserEntity user = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new UserNotFoundException("Korisnik nije pronađen"));
+
+        Page<UserProgramEntity> userPrograms = userProgramRepository.findAllByUserByUserId(user, pageable);
+
+        return userPrograms.map(this::mapToFitnessProgramListResponse);
+    }
+
+
+    private FitnessProgramListResponse mapToFitnessProgramListResponse(UserProgramEntity userProgram) {
+        FitnessProgramEntity program = userProgram.getFitnessProgramByProgramId();
+        FitnessProgramListResponse response = new FitnessProgramListResponse();
+
+        response.setId(program.getId());
+        response.setName(program.getName());
+        response.setDescription(program.getDescription());
+        response.setDuration(program.getDuration());
+        response.setPrice(program.getPrice());
+        response.setDifficultyLevel(program.getDifficultyLevel());
+        response.setYoutubeUrl(program.getYoutubeUrl());
+
+        // Set location name if present
+        if (program.getLocation() != null) {
+            response.setLocationName(program.getLocation().getName());
+        }
+
+        if (program.getUser() != null) {
+            response.setInstructorName(this.generateInstructorName(program.getUser()));
+            response.setInstructorId(program.getUser().getId());
+        }
+
+        // Dodatna polja iz `user_program` tabele
+        response.setStartDate(userProgram.getStartDate());
+        response.setEndDate(userProgram.getEndDate());
+        response.setStatus(userProgram.getStatus().toString());
+
+        return response;
+    }
+
 
     /**
      * Converts a CategoryEntity to a CategoryDTO.
@@ -494,6 +536,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
         programResponse.setId(program.getId());
         programResponse.setName(program.getName());
         programResponse.setPrice(program.getPrice());
+        programResponse.setInstructorId(program.getUser().getId());
 
         List<String> imageUrls = program
                 .getProgramImages()

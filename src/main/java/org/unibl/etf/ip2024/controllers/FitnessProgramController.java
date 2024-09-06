@@ -143,6 +143,27 @@ public class FitnessProgramController {
     }
 
     /**
+     * Handles HTTP GET requests to retrieve the fitness programs purchased by the authenticated user.
+     *
+     * @param principal the security principal of the authenticated user
+     * @param page      the page number to retrieve, defaults to 0 if not provided
+     * @param size      the number of items per page, defaults to 10 if not provided
+     * @return a ResponseEntity containing a Page of FitnessProgramListResponse objects
+     */
+    @GetMapping("/purchased")
+    public ResponseEntity<Page<FitnessProgramListResponse>> getPurchasedPrograms(
+            Principal principal,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FitnessProgramListResponse> programs = fitnessProgramService.getUserPrograms(principal, pageable);
+
+        return ResponseEntity.ok(programs);
+    }
+
+
+    /**
      * Handles HTTP PUT requests to update an existing fitness program.
      *
      * @param id             the ID of the fitness program to update

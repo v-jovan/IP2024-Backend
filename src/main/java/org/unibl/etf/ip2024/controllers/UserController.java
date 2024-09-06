@@ -24,6 +24,16 @@ public class UserController {
         return ResponseEntity.ok(this.userService.getUserInfo(username));
     }
 
+    @GetMapping("/info-id")
+    public ResponseEntity<UserInfoResponse> getUserInfoById(@RequestParam("id") Integer id) {
+        return ResponseEntity.ok(this.userService.getUserInfoById(id));
+    }
+
+    @GetMapping("/user-id")
+    public ResponseEntity<Integer> getUserId(@RequestParam("username") String username) {
+        return ResponseEntity.ok(userService.getUserId(username));
+    }
+
     @PatchMapping("/info")
     public ResponseEntity<UserInfoResponse> updateUserInfo(Principal principal, @RequestBody UpdateUserRequest updateUserRequest) {
         String username = principal.getName();

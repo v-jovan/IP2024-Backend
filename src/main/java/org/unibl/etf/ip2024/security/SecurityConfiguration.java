@@ -45,7 +45,6 @@ public class SecurityConfiguration {
                         .requestMatchers("/auth/**").permitAll() // Allows unauthenticated access to /auth/**
                         .requestMatchers("/upload/**").permitAll() // Allows unauthenticated access to /upload/**
                         .requestMatchers("/uploads/**").permitAll() // Allows unauthenticated access to /uploads/**
-                        .requestMatchers("/test/**").permitAll() // Allows unauthenticated access to /test/**
                         .requestMatchers("/cities/**").permitAll() // Allows unauthenticated access to /cities/**
                         .requestMatchers("/news/**").permitAll() // Allows unauthenticated access to /news/**
                         .requestMatchers(HttpMethod.GET, "/programs").permitAll() // Allows unauthenticated GET access to /programs
@@ -53,6 +52,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/programs/with-attributes").permitAll() // Allows unauthenticated GET access to /programs/with-attributes
                         .requestMatchers(HttpMethod.GET, "/attributes").permitAll() // Allows unauthenticated GET access to /attributes
                         .requestMatchers(HttpMethod.GET, "/comments").permitAll() // Allows unauthenticated GET access to /comments
+                        .requestMatchers(HttpMethod.GET, "/user/**").permitAll() // Allows unauthenticated GET access to /user
                         .anyRequest().authenticated()) // Requires authentication for any other requests
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS)) // Configures session management to be stateless (jwt)
                 .authenticationProvider(authenticationProvider()) // Sets the authentication provider

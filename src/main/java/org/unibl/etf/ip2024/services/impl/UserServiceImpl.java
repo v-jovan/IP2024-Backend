@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.exceptions.InvalidOldPasswordException;
+import org.unibl.etf.ip2024.exceptions.UserNotFoundException;
 import org.unibl.etf.ip2024.models.dto.CustomUserDetails;
 import org.unibl.etf.ip2024.models.dto.requests.UpdatePasswordRequest;
 import org.unibl.etf.ip2024.models.dto.requests.UpdateUserRequest;
@@ -119,5 +120,29 @@ public class UserServiceImpl implements UserService {
                 orElseThrow(() -> new UsernameNotFoundException("Korisnik nije pronadjen: " + username));
 
         return user.isActivated();
+    }
+
+    @Override
+    public Integer getUserId(String username) {
+        UserEntity user = this.userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Korisnik sa ovim emailom ne postoji."));
+        return user.getId();
+    }
+
+    @Override
+    public UserInfoResponse getUserInfoById(Integer id) {
+
+        UserEntity user = userRepository.findById(id).
+                orElseThrow(() -> new UsernameNotFoundException("Korisnik nije pronađen: "));
+
+        return new UserInfoResponse(
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getAvatarUrl(),
+                user.getBiography(),
+                user.getCity().getId()
+        );
     }
 }

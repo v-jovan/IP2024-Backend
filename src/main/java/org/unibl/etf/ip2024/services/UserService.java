@@ -13,4 +13,6 @@ public interface UserService extends UserDetailsService  {
     void updatePassword(String username, UpdatePasswordRequest updatePasswordRequest);
     String getAvatar(String username);
     Boolean isActive(String username);
+    Integer getUserId(String username);
+    UserInfoResponse getUserInfoById(Integer id);
 }

@@ -15,4 +15,5 @@ public class FitnessProgramHomeResponse {
     private String name;
     private BigDecimal price;
     private List<String> images;
+    private Integer instructorId;
 }

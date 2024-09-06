@@ -39,4 +39,7 @@ public interface FitnessProgramService {
 
     List<CategoryDTO> getAllCategoriesWithAttributesAndValues();
 
+    @Transactional
+    Page<FitnessProgramListResponse> getUserPrograms(Principal principal, Pageable pageable);
+
 }

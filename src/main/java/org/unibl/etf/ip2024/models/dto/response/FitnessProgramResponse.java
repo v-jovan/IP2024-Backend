@@ -24,6 +24,7 @@ public class FitnessProgramResponse {
     private Integer categoryId;
     private String categoryName;
     private String instructorName;
+    private Integer instructorId;
     private List<AttributeDTO> specificAttributes;
     private List<String> images;
 

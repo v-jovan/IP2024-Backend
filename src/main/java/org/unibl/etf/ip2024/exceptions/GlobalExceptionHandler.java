@@ -129,6 +129,11 @@ public class GlobalExceptionHandler {
             errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
             errorResponse.setMessage(exception.getMessage());
             logger.error("Program not found: {}", exception.getMessage());
+        } else if (exception instanceof UnauthorizedAccessException) {
+            errorResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+            errorResponse.setError(HttpStatus.UNAUTHORIZED.getReasonPhrase());
+            errorResponse.setMessage(exception.getMessage());
+            logger.error("Unauthorized: {}", exception.getMessage());
         } else {
             errorResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
             errorResponse.setError(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase());

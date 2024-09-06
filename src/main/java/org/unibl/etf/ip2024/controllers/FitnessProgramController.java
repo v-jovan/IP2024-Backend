@@ -18,6 +18,7 @@ import org.unibl.etf.ip2024.models.dto.response.FitnessProgramListResponse;
 import org.unibl.etf.ip2024.models.dto.response.FitnessProgramResponse;
 import org.unibl.etf.ip2024.services.FitnessProgramService;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Objects;
@@ -142,26 +143,6 @@ public class FitnessProgramController {
         return ResponseEntity.ok(programs);
     }
 
-    /**
-     * Handles HTTP GET requests to retrieve the fitness programs purchased by the authenticated user.
-     *
-     * @param principal the security principal of the authenticated user
-     * @param page      the page number to retrieve, defaults to 0 if not provided
-     * @param size      the number of items per page, defaults to 10 if not provided
-     * @return a ResponseEntity containing a Page of FitnessProgramListResponse objects
-     */
-    @GetMapping("/purchased")
-    public ResponseEntity<Page<FitnessProgramListResponse>> getPurchasedPrograms(
-            Principal principal,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<FitnessProgramListResponse> programs = fitnessProgramService.getUserPrograms(principal, pageable);
-
-        return ResponseEntity.ok(programs);
-    }
-
 
     /**
      * Handles HTTP PUT requests to update an existing fitness program.
@@ -194,6 +175,20 @@ public class FitnessProgramController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    /**
+     * Handles HTTP DELETE requests to delete a fitness program by its ID.
+     *
+     * @param programId the ID of the fitness program to delete
+     * @param principal the security principal of the authenticated user
+     * @return a ResponseEntity with status 204 No Content if the deletion is successful
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProgram(@PathVariable("id") Integer programId, Principal principal) throws IOException {
+        fitnessProgramService.deleteFitnessProgram(programId, principal);
+        return ResponseEntity.noContent().build(); // Status 204 No Content
+    }
+
 
     /**
      * Creates a Pageable object based on the provided page, size, and sort parameters.

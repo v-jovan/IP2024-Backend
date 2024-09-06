@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.exceptions.ProgramNotFoundException;
 import org.unibl.etf.ip2024.exceptions.UserNotFoundException;
+import org.unibl.etf.ip2024.models.dto.response.FitnessProgramListResponse;
 import org.unibl.etf.ip2024.models.dto.response.UserProgramResponse;
 import org.unibl.etf.ip2024.models.entities.FitnessProgramEntity;
 import org.unibl.etf.ip2024.models.entities.UserEntity;
@@ -36,7 +37,7 @@ public class UserProgramServiceImpl implements UserProgramService {
     }
 
     @Override
-    public Page<UserProgramResponse> getUserPrograms(Principal principal, Pageable pageable) {
+    public Page<FitnessProgramListResponse> getUserPrograms(Principal principal, Pageable pageable) {
         UserEntity user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new UserNotFoundException("Korisnik nije pronađen"));
 
@@ -53,7 +54,7 @@ public class UserProgramServiceImpl implements UserProgramService {
             }
         });
 
-        return userProgramsPage.map(this::mapToUserProgramResponse);
+        return userProgramsPage.map(this::mapToFitnessProgramListResponse);
     }
 
     @Override
@@ -78,6 +79,22 @@ public class UserProgramServiceImpl implements UserProgramService {
         return mapToUserProgramResponse(savedUser);
     }
 
+    @Override
+    public void deleteUserProgram(Principal principal, Integer programId) {
+        UserEntity user = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new UserNotFoundException("Korisnik nije pronađen"));
+
+        UserProgramEntity userProgram = userProgramRepository.findById(programId)
+                .orElseThrow(() -> new ProgramNotFoundException("Program nije pronađen"));
+
+        if (!userProgram.getUserByUserId().getId().equals(user.getId())) {
+            throw new ProgramNotFoundException("Program nije pronađen");
+        }
+
+        userProgramRepository.delete(userProgram);
+    }
+
+
     private UserProgramResponse mapToUserProgramResponse(UserProgramEntity userProgram) {
         UserProgramResponse response = new UserProgramResponse();
         response.setId(userProgram.getId());
@@ -87,6 +104,55 @@ public class UserProgramServiceImpl implements UserProgramService {
         response.setStatus(userProgram.getStatus().name());
 
         return response;
+    }
+
+    private FitnessProgramListResponse mapToFitnessProgramListResponse(UserProgramEntity userProgram) {
+        FitnessProgramEntity program = userProgram.getFitnessProgramByProgramId();
+        FitnessProgramListResponse response = new FitnessProgramListResponse();
+
+        response.setId(program.getId());
+        response.setName(program.getName());
+        response.setDescription(program.getDescription());
+        response.setDuration(program.getDuration());
+        response.setPrice(program.getPrice());
+        response.setDifficultyLevel(program.getDifficultyLevel());
+        response.setYoutubeUrl(program.getYoutubeUrl());
+        response.setPurchaseId(userProgram.getId());
+
+        if (program.getLocation() != null) {
+            response.setLocationName(program.getLocation().getName());
+        }
+
+        if (program.getUser() != null) {
+            response.setInstructorName(this.generateInstructorName(program.getUser()));
+            response.setInstructorId(program.getUser().getId());
+        }
+
+        response.setStartDate(userProgram.getStartDate());
+        response.setEndDate(userProgram.getEndDate());
+        response.setStatus(userProgram.getStatus().toString());
+
+        return response;
+    }
+
+    private String generateInstructorName(UserEntity user) {
+        String firstName = user.getFirstName();
+        String lastName = user.getLastName();
+        String username = user.getUsername();
+
+        String instructorName;
+
+        if (firstName != null && !firstName.isEmpty() && lastName != null && !lastName.isEmpty()) {
+            instructorName = firstName + " " + lastName;
+        } else if (firstName != null && !firstName.isEmpty()) {
+            instructorName = firstName;
+        } else if (lastName != null && !lastName.isEmpty()) {
+            instructorName = lastName;
+        } else {
+            instructorName = username;
+        }
+
+        return instructorName;
     }
 
 }

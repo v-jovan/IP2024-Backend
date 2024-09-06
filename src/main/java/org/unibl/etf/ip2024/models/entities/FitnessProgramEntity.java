@@ -35,10 +35,10 @@ public class FitnessProgramEntity {
     @Column(name = "youtube_url")
     private String youtubeUrl;
     @JsonIgnore
-    @OneToMany(mappedBy = "fitnessProgram")
+    @OneToMany(mappedBy = "fitnessProgram", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments;
     @JsonIgnore
-    @OneToMany(mappedBy = "fitnessProgram")
+    @OneToMany(mappedBy = "fitnessProgram", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProgramImageEntity> programImages;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
@@ -50,10 +50,10 @@ public class FitnessProgramEntity {
     @JoinColumn(name = "location_id", referencedColumnName = "id")
     private LocationEntity location;
     @JsonIgnore
-    @OneToMany(mappedBy = "fitnessProgram")
+    @OneToMany(mappedBy = "fitnessProgram", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProgramAttributeEntity> programAttributes;
     @JsonIgnore
-    @OneToMany(mappedBy = "fitnessProgramByProgramId")
+    @OneToMany(mappedBy = "fitnessProgramByProgramId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserProgramEntity> userPrograms;
 
 }

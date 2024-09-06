@@ -39,7 +39,6 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
     private final ImageUploadService imageUploadService;
     private final ProgramAttributeEntityRepository programAttributeRepository;
     private final AttributeValueEntityRepository attributeValueRepository;
-    private final UserProgramEntityRepository userProgramRepository;
     private final ModelMapper modelMapper;
 
     /**
@@ -370,44 +369,25 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
     }
 
     @Override
-    public Page<FitnessProgramListResponse> getUserPrograms(Principal principal, Pageable pageable) {
-        UserEntity user = userRepository.findByUsername(principal.getName())
+    @Transactional
+    public void deleteFitnessProgram(Integer programId, Principal principal) throws IOException {
+        FitnessProgramEntity program = fitnessProgramRepository.findById(programId)
+                .orElseThrow(() -> new ProgramNotFoundException("Program sa ID-jem " + programId + " nije pronađen."));
+
+        UserEntity currentUser = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new UserNotFoundException("Korisnik nije pronađen"));
 
-        Page<UserProgramEntity> userPrograms = userProgramRepository.findAllByUserByUserId(user, pageable);
-
-        return userPrograms.map(this::mapToFitnessProgramListResponse);
-    }
-
-
-    private FitnessProgramListResponse mapToFitnessProgramListResponse(UserProgramEntity userProgram) {
-        FitnessProgramEntity program = userProgram.getFitnessProgramByProgramId();
-        FitnessProgramListResponse response = new FitnessProgramListResponse();
-
-        response.setId(program.getId());
-        response.setName(program.getName());
-        response.setDescription(program.getDescription());
-        response.setDuration(program.getDuration());
-        response.setPrice(program.getPrice());
-        response.setDifficultyLevel(program.getDifficultyLevel());
-        response.setYoutubeUrl(program.getYoutubeUrl());
-
-        // Set location name if present
-        if (program.getLocation() != null) {
-            response.setLocationName(program.getLocation().getName());
+        if (!program.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException("Nemate dozvolu da obrišete ovaj program.");
         }
 
-        if (program.getUser() != null) {
-            response.setInstructorName(this.generateInstructorName(program.getUser()));
-            response.setInstructorId(program.getUser().getId());
+        List<ProgramImageEntity> programImages = program.getProgramImages();
+
+        for (ProgramImageEntity imageEntity : programImages) {
+            imageUploadService.deleteImageFile(imageEntity.getImageUrl());
         }
 
-        // Dodatna polja iz `user_program` tabele
-        response.setStartDate(userProgram.getStartDate());
-        response.setEndDate(userProgram.getEndDate());
-        response.setStatus(userProgram.getStatus().toString());
-
-        return response;
+        fitnessProgramRepository.delete(program);
     }
 
 

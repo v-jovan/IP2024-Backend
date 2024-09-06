@@ -25,4 +25,5 @@ public class FitnessProgramListResponse {
     private String status;
     private String instructorName;
     private Integer instructorId;
+    private Integer purchaseId;
 }

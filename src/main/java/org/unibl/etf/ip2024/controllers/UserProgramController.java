@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.unibl.etf.ip2024.models.dto.response.FitnessProgramListResponse;
 import org.unibl.etf.ip2024.models.dto.response.UserProgramResponse;
 import org.unibl.etf.ip2024.services.UserProgramService;
 
@@ -19,12 +20,12 @@ public class UserProgramController {
     private final UserProgramService userProgramService;
 
     @GetMapping
-    public ResponseEntity<Page<UserProgramResponse>> getUserPrograms(
+    public ResponseEntity<Page<FitnessProgramListResponse>> getUserPrograms(
             Principal principal,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<UserProgramResponse> userPrograms = userProgramService.getUserPrograms(principal, pageable);
+        Page<FitnessProgramListResponse> userPrograms = userProgramService.getUserPrograms(principal, pageable);
         return ResponseEntity.ok(userPrograms);
     }
 
@@ -34,5 +35,11 @@ public class UserProgramController {
             @PathVariable Integer programId) {
         UserProgramResponse userProgram = userProgramService.createUserProgram(principal, programId);
         return ResponseEntity.ok(userProgram);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePurchasedProgram(@PathVariable("id") Integer programId, Principal principal) {
+        userProgramService.deleteUserProgram(principal, programId);
+        return ResponseEntity.noContent().build(); // Status 204 No Content
     }
 }

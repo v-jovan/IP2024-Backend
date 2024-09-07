@@ -3,9 +3,11 @@ package org.unibl.etf.ip2024.models.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 import org.unibl.etf.ip2024.models.enums.DifficultyLevel;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -31,6 +33,9 @@ public class FitnessProgramEntity {
     @Basic
     @Column(name = "price", nullable = false, precision = 2)
     private BigDecimal price;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
     @Basic
     @Column(name = "youtube_url")
     private String youtubeUrl;

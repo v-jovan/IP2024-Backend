@@ -24,7 +24,7 @@ public class EmailServiceImpl implements EmailService {
 
             helper.setTo(to);
             helper.setSubject("Aktivacija naloga");
-            helper.setText(buildEmail(activationLink), true);
+            helper.setText(buildActivationEmail(activationLink), true);
 
             mailSender.send(message);
         } catch (MessagingException e) {
@@ -32,7 +32,24 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    private String buildEmail(String activationLink) {
+    @Override
+    @Async
+    public void sendEmail(String to, String subject, String text) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(text, true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new EmailSendException("Greška prilikom slanja emaila", e);
+        }
+    }
+
+    private String buildActivationEmail(String activationLink) {
         // This could be a template, but just for this example I will hardcode it
         return "<div style=\"font-family: Arial, sans-serif; font-size: 16px;\">" +
                 "<h2>Aktivacija naloga</h2>" +

@@ -10,6 +10,7 @@ import org.unibl.etf.ip2024.models.entities.LocationEntity;
 import org.unibl.etf.ip2024.services.CategoryService;
 import org.unibl.etf.ip2024.services.EmailService;
 import org.unibl.etf.ip2024.services.LocationService;
+import org.unibl.etf.ip2024.services.SubscriptionService;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +26,14 @@ public class TestController {
     private final EmailService emailService;
     private final CategoryService categoryService;
     private final LocationService locationService;
+    private final SubscriptionService subscriptionService;
+
+
+    @GetMapping("/test-email")
+    public String sendTestEmail() {
+        subscriptionService.sendDailySubscriptionEmails(); // Ovo odmah šalje emailove
+        return "Test email sent!";
+    }
 
     @GetMapping("/email")
     public ResponseEntity<String> sendTestEmail(@RequestParam String to) {

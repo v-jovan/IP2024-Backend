@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.exceptions.CategoryAlreadyExistsException;
 import org.unibl.etf.ip2024.exceptions.CategoryNotFoundException;
 import org.unibl.etf.ip2024.exceptions.UserNotFoundException;
-import org.unibl.etf.ip2024.models.dto.CategoryWithSubscription;
+import org.unibl.etf.ip2024.models.dto.CategoryWithSubscriptionDTO;
 import org.unibl.etf.ip2024.models.dto.requests.CategoryRequest;
 import org.unibl.etf.ip2024.models.entities.CategoryEntity;
 import org.unibl.etf.ip2024.models.entities.SubscriptionEntity;
@@ -58,7 +58,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryWithSubscription> getCategoriesWithSubscription(Principal principal) {
+    public List<CategoryWithSubscriptionDTO> getCategoriesWithSubscription(Principal principal) {
         UserEntity user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new UserNotFoundException("Korisnik nije pronađen"));
 
@@ -73,7 +73,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categories.stream()
                 .map(category -> {
-                    CategoryWithSubscription dto = new CategoryWithSubscription();
+                    CategoryWithSubscriptionDTO dto = new CategoryWithSubscriptionDTO();
                     dto.setId(category.getId());
                     dto.setName(category.getName());
                     dto.setDescription(category.getDescription());

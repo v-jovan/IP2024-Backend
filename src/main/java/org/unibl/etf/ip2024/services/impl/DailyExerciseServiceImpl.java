@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.exceptions.ExerciseFetchException;
-import org.unibl.etf.ip2024.models.dto.Exercise;
+import org.unibl.etf.ip2024.models.dto.ExerciseDTO;
 import org.unibl.etf.ip2024.services.DailyExerciseService;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class DailyExerciseServiceImpl implements DailyExerciseService {
     private String apiKey;
 
     @Override
-    public Exercise[] getDailyExercises() throws IOException {
+    public ExerciseDTO[] getDailyExercises() throws IOException {
         // this is the recommended way to handle the connection to api-ninjas... for whatever reason
         URL url = new URL(apiUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -29,7 +29,7 @@ public class DailyExerciseServiceImpl implements DailyExerciseService {
 
         try (InputStream responseStream = connection.getInputStream()) {
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(responseStream, Exercise[].class);
+            return mapper.readValue(responseStream, ExerciseDTO[].class);
         } catch (Exception e) {
             throw new ExerciseFetchException("Greška u komunikaciji sa API-jem: " + e.getMessage(), e);
         }

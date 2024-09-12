@@ -46,7 +46,7 @@ public class FitnessProgramEntity {
     @OneToMany(mappedBy = "fitnessProgram", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProgramImageEntity> programImages;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
     private CategoryEntity category;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "instructor_id", referencedColumnName = "id", nullable = false)

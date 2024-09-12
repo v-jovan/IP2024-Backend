@@ -9,11 +9,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.exceptions.InvalidOldPasswordException;
 import org.unibl.etf.ip2024.exceptions.UserNotFoundException;
+import org.unibl.etf.ip2024.models.dto.AdvisorDTO;
 import org.unibl.etf.ip2024.models.dto.CustomUserDetails;
 import org.unibl.etf.ip2024.models.dto.requests.UpdatePasswordRequest;
 import org.unibl.etf.ip2024.models.dto.requests.UpdateUserRequest;
 import org.unibl.etf.ip2024.models.dto.response.UserInfoResponse;
 import org.unibl.etf.ip2024.models.entities.UserEntity;
+import org.unibl.etf.ip2024.models.enums.Roles;
 import org.unibl.etf.ip2024.repositories.UserEntityRepository;
 import org.unibl.etf.ip2024.services.UserService;
 
@@ -144,5 +146,13 @@ public class UserServiceImpl implements UserService {
                 user.getBiography(),
                 user.getCity().getId()
         );
+    }
+
+    @Override
+    public List<AdvisorDTO> getAllAdvisors() {
+        List<UserEntity> advisors = userRepository.findAllByRole(Roles.INSTRUCTOR)
+                .orElseThrow(() -> new UserNotFoundException("Nema savjetnika u sistemu."));
+
+        return AdvisorDTO.fromEntities(advisors);
     }
 }

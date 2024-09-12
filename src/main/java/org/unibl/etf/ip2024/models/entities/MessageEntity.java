@@ -14,6 +14,9 @@ public class MessageEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
     @Basic
+    @Column(name = "subject", nullable = false)
+    private String subject;
+    @Basic
     @Column(name = "content", nullable = false, length = -1)
     private String content;
     @Basic

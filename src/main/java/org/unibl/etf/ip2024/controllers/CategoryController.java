@@ -3,7 +3,7 @@ package org.unibl.etf.ip2024.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.unibl.etf.ip2024.models.dto.CategoryWithSubscription;
+import org.unibl.etf.ip2024.models.dto.CategoryWithSubscriptionDTO;
 import org.unibl.etf.ip2024.models.dto.requests.SubscriptionRequest;
 import org.unibl.etf.ip2024.models.entities.CategoryEntity;
 import org.unibl.etf.ip2024.services.CategoryService;
@@ -23,7 +23,7 @@ public class CategoryController {
     }
 
     @GetMapping("/subscriptions")
-    public ResponseEntity<List<CategoryWithSubscription>> getCategoriesWithSubscription(Principal principal) {
+    public ResponseEntity<List<CategoryWithSubscriptionDTO>> getCategoriesWithSubscription(Principal principal) {
         return ResponseEntity.ok(this.categoryService.getCategoriesWithSubscription(principal));
     }
 

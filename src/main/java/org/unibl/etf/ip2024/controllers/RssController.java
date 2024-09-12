@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.unibl.etf.ip2024.models.dto.RssItem;
+import org.unibl.etf.ip2024.models.dto.RssItemDTO;
 import org.unibl.etf.ip2024.services.RssNewsService;
 
 import java.util.List;
@@ -20,8 +20,8 @@ public class RssController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<RssItem>> getDailyNews() {
-        List<RssItem> news = rssNewsService.getDailyNews();
+    public ResponseEntity<List<RssItemDTO>> getDailyNews() {
+        List<RssItemDTO> news = rssNewsService.getDailyNews();
         return new ResponseEntity<>(news, HttpStatus.OK);
     }
 }

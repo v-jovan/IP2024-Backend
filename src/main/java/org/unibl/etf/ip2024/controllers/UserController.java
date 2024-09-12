@@ -2,12 +2,14 @@ package org.unibl.etf.ip2024.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.unibl.etf.ip2024.models.dto.AdvisorDTO;
 import org.unibl.etf.ip2024.models.dto.requests.UpdatePasswordRequest;
 import org.unibl.etf.ip2024.models.dto.requests.UpdateUserRequest;
 import org.unibl.etf.ip2024.models.dto.response.UserInfoResponse;
 import org.unibl.etf.ip2024.services.UserService;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -58,5 +60,10 @@ public class UserController {
     public ResponseEntity<Boolean> isActive(Principal principal) {
         String username = principal.getName();
         return ResponseEntity.ok(this.userService.isActive(username));
+    }
+
+    @GetMapping("/advisors")
+    public ResponseEntity<List<AdvisorDTO>> getAdvisors() {
+        return ResponseEntity.ok(userService.getAllAdvisors());
     }
 }

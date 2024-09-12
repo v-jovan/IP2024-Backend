@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.exceptions.RssFeedException;
-import org.unibl.etf.ip2024.models.dto.RssItem;
+import org.unibl.etf.ip2024.models.dto.RssItemDTO;
 import org.unibl.etf.ip2024.services.RssNewsService;
 
 import java.net.URL;
@@ -21,8 +21,8 @@ public class RssNewsServiceImpl implements RssNewsService {
     @Value("${rss.feed.url}")
     private String rssUrl;
 
-    public List<RssItem> getDailyNews() {
-        List<RssItem> rssItems = new ArrayList<>(); // Initialize the list to store RSS items
+    public List<RssItemDTO> getDailyNews() {
+        List<RssItemDTO> rssItems = new ArrayList<>(); // Initialize the list to store RSS items
         try {
             // Create a URL object from the rssUrl
             URL url = new URL(rssUrl);
@@ -34,7 +34,7 @@ public class RssNewsServiceImpl implements RssNewsService {
             SyndFeed feed = input.build(new XmlReader(url));
 
             for (SyndEntry entry : feed.getEntries()) {
-                RssItem item = new RssItem();
+                RssItemDTO item = new RssItemDTO();
                 item.setCategory(entry.getCategories().get(0).getName());
                 item.setTitle(entry.getTitle());
                 item.setLink(entry.getLink());

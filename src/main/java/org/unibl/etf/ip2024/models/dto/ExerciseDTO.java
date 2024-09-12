@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Exercise {
+public class ExerciseDTO {
     private String name;
     private String type;
     private String muscle;

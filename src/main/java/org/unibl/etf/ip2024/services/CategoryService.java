@@ -2,7 +2,7 @@ package org.unibl.etf.ip2024.services;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.unibl.etf.ip2024.models.dto.CategoryWithSubscription;
+import org.unibl.etf.ip2024.models.dto.CategoryWithSubscriptionDTO;
 import org.unibl.etf.ip2024.models.dto.requests.CategoryRequest;
 import org.unibl.etf.ip2024.models.entities.CategoryEntity;
 
@@ -14,7 +14,7 @@ public interface CategoryService {
     @Transactional
     CategoryEntity addCategory(CategoryRequest categoryRequest);
     List<CategoryEntity> listCategories();
-    List<CategoryWithSubscription> getCategoriesWithSubscription(Principal principal);
+    List<CategoryWithSubscriptionDTO> getCategoriesWithSubscription(Principal principal);
     @Transactional
     CategoryEntity addSubscription(Principal principal, Integer categoryId);
 }

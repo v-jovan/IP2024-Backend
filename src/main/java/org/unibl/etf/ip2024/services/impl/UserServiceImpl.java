@@ -13,14 +13,17 @@ import org.unibl.etf.ip2024.models.dto.AdvisorDTO;
 import org.unibl.etf.ip2024.models.dto.CustomUserDetails;
 import org.unibl.etf.ip2024.models.dto.requests.UpdatePasswordRequest;
 import org.unibl.etf.ip2024.models.dto.requests.UpdateUserRequest;
+import org.unibl.etf.ip2024.models.dto.response.NonAdvisorsResponse;
 import org.unibl.etf.ip2024.models.dto.response.UserInfoResponse;
 import org.unibl.etf.ip2024.models.entities.UserEntity;
 import org.unibl.etf.ip2024.models.enums.Roles;
 import org.unibl.etf.ip2024.repositories.UserEntityRepository;
 import org.unibl.etf.ip2024.services.UserService;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -153,6 +156,56 @@ public class UserServiceImpl implements UserService {
         List<UserEntity> advisors = userRepository.findAllByRole(Roles.INSTRUCTOR)
                 .orElseThrow(() -> new UserNotFoundException("Nema savjetnika u sistemu."));
 
-        return AdvisorDTO.fromEntities(advisors);
+        return advisors.stream()
+                .map(this::mapToAdvisorDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<NonAdvisorsResponse> getAllNonAdvisors(Principal principal) {
+
+        UserEntity user = userRepository.findByUsername(principal.getName())
+                .orElseThrow(UserNotFoundException::new);
+
+        List<UserEntity> users = userRepository.findAllByRoleNotAndUsernameNot(Roles.INSTRUCTOR, user.getUsername())
+                .orElseThrow(() -> new UserNotFoundException("Nema korisnika u sistemu."));
+
+        return users
+                .stream()
+                .map(this::mapToNonAdvisor)
+                .collect(Collectors.toList());
+    }
+
+    private NonAdvisorsResponse mapToNonAdvisor(UserEntity userEntity) {
+        NonAdvisorsResponse response = new NonAdvisorsResponse();
+        response.setUserId(userEntity.getId());
+        response.setName(getDisplayName(userEntity));
+
+        return response;
+    }
+
+    private AdvisorDTO mapToAdvisorDTO(UserEntity advisor) {
+        AdvisorDTO advisorDTO = new AdvisorDTO();
+        advisorDTO.setId(advisor.getId());
+        advisorDTO.setName(getDisplayName(advisor));
+        advisorDTO.setEmail(advisor.getEmail());
+        return advisorDTO;
+    }
+
+    private static String getDisplayName(UserEntity user) {
+        if (user == null) {
+            return "";
+        }
+        String displayName;
+        if (user.getFirstName() != null && user.getLastName() != null) {
+            displayName = user.getFirstName() + " " + user.getLastName();
+        } else if (user.getFirstName() != null) {
+            displayName = user.getFirstName();
+        } else if (user.getLastName() != null) {
+            displayName = user.getLastName();
+        } else {
+            displayName = user.getUsername();
+        }
+        return displayName;
     }
 }

@@ -14,7 +14,7 @@ public class MessageEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
     @Basic
-    @Column(name = "subject", nullable = false)
+    @Column(name = "subject")
     private String subject;
     @Basic
     @Column(name = "content", nullable = false, length = -1)
@@ -27,9 +27,9 @@ public class MessageEntity {
     private Timestamp readAt;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", referencedColumnName = "id", nullable = false)
-    private UserEntity userBySenderId;
+    private UserEntity sender;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id", referencedColumnName = "id", nullable = false)
-    private UserEntity userByRecipientId;
+    private UserEntity recipient;
 
 }

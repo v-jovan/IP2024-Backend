@@ -1,9 +1,21 @@
 package org.unibl.etf.ip2024.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.unibl.etf.ip2024.models.entities.MessageEntity;
 
+import java.util.List;
+
 @Repository
 public interface MessageEntityRepository extends JpaRepository<MessageEntity, Integer> {
+    List<MessageEntity> findAllBySenderIdOrRecipientId(Integer senderId, Integer recipientId);
+
+    @Query("SELECT m FROM MessageEntity m WHERE " +
+            "(m.sender.id = :userId AND m.recipient.id = :conversationUserId) OR " +
+            "(m.sender.id = :conversationUserId AND m.recipient.id = :userId) " +
+            "ORDER BY m.sentAt ASC")
+    List<MessageEntity> findMessagesBetweenUsers(@Param("userId") Integer userId, @Param("conversationUserId") Integer conversationUserId);
+
 }

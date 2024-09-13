@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import org.unibl.etf.ip2024.models.dto.AdvisorDTO;
 import org.unibl.etf.ip2024.models.dto.requests.UpdatePasswordRequest;
 import org.unibl.etf.ip2024.models.dto.requests.UpdateUserRequest;
+import org.unibl.etf.ip2024.models.dto.response.NonAdvisorsResponse;
 import org.unibl.etf.ip2024.models.dto.response.UserInfoResponse;
 import org.unibl.etf.ip2024.services.UserService;
 
@@ -65,5 +66,10 @@ public class UserController {
     @GetMapping("/advisors")
     public ResponseEntity<List<AdvisorDTO>> getAdvisors() {
         return ResponseEntity.ok(userService.getAllAdvisors());
+    }
+
+    @GetMapping("/non-advisors")
+    public ResponseEntity<List<NonAdvisorsResponse>> getNonAdvisors(Principal principal) {
+        return ResponseEntity.ok(userService.getAllNonAdvisors(principal));
     }
 }

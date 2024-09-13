@@ -56,11 +56,11 @@ public class UserEntity implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<FitnessProgramEntity> fitnessPrograms;
     @JsonIgnore
-    @OneToMany(mappedBy = "userBySenderId")
-    private List<MessageEntity> messagesBySenderId;
+    @OneToMany(mappedBy = "sender")
+    private List<MessageEntity> sentMessages;
     @JsonIgnore
-    @OneToMany(mappedBy = "userByRecipientId")
-    private List<MessageEntity> messagesByRecipientId;
+    @OneToMany(mappedBy = "recipient")
+    private List<MessageEntity> receivedMessages;
     @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<SubscriptionEntity> subscriptions;

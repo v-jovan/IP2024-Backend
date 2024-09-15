@@ -9,15 +9,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.exceptions.InvalidOldPasswordException;
 import org.unibl.etf.ip2024.exceptions.UserNotFoundException;
-import org.unibl.etf.ip2024.models.dto.AdvisorDTO;
+import org.unibl.etf.ip2024.models.dto.AdviserDTO;
 import org.unibl.etf.ip2024.models.dto.CustomUserDetails;
 import org.unibl.etf.ip2024.models.dto.requests.UpdatePasswordRequest;
 import org.unibl.etf.ip2024.models.dto.requests.UpdateUserRequest;
-import org.unibl.etf.ip2024.models.dto.response.NonAdvisorsResponse;
+import org.unibl.etf.ip2024.models.dto.response.NonAdvisersResponse;
 import org.unibl.etf.ip2024.models.dto.response.UserInfoResponse;
 import org.unibl.etf.ip2024.models.entities.UserEntity;
 import org.unibl.etf.ip2024.models.enums.Roles;
 import org.unibl.etf.ip2024.repositories.UserEntityRepository;
+import org.unibl.etf.ip2024.services.LogService;
 import org.unibl.etf.ip2024.services.UserService;
 
 import java.security.Principal;
@@ -31,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final UserEntityRepository userRepository;
     private final CityServiceImpl cityService;
     private final PasswordEncoder passwordEncoder;
+    private final LogService logService;
 
     @Override
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
@@ -44,6 +46,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity user = userOptional.orElseThrow(() -> new UsernameNotFoundException("Korisnik nije pronadjen: " + usernameOrEmail));
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().name()));
+        logService.log(null, "Dohvatanje korisnika");
         return new CustomUserDetails(user.getUsername(), user.getPassword(), user.getEmail(), authorities);
     }
 
@@ -51,6 +54,8 @@ public class UserServiceImpl implements UserService {
     public UserInfoResponse getUserInfo(String username) {
         UserEntity user = userRepository.findByUsername(username).
                 orElseThrow(() -> new UsernameNotFoundException("Korisnik nije pronadjen: " + username));
+
+        logService.log(null, "Prikaz informacija o korisniku");
 
         return new UserInfoResponse(
                 user.getUsername(),
@@ -85,6 +90,8 @@ public class UserServiceImpl implements UserService {
         if (updateUserRequest.getCityId() != null && !updateUserRequest.getCityId().equals(user.getCity().getId())) {
             user.setCity(cityService.getCityById(updateUserRequest.getCityId()));
         }
+
+        logService.log(null, "Ažuriranje informacija o korisniku");
         userRepository.save(user);
 
         return new UserInfoResponse(
@@ -108,6 +115,7 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
+        logService.log(null, "Ažuriranje lozinke");
         userRepository.saveAndFlush(user);
     }
 
@@ -152,17 +160,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<AdvisorDTO> getAllAdvisors() {
-        List<UserEntity> advisors = userRepository.findAllByRole(Roles.INSTRUCTOR)
+    public List<AdviserDTO> getAllAdvisers() {
+        List<UserEntity> advisers = userRepository.findAllByRole(Roles.INSTRUCTOR)
                 .orElseThrow(() -> new UserNotFoundException("Nema savjetnika u sistemu."));
 
-        return advisors.stream()
-                .map(this::mapToAdvisorDTO)
+        return advisers.stream()
+                .map(this::mapToAdviserDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<NonAdvisorsResponse> getAllNonAdvisors(Principal principal) {
+    public List<NonAdvisersResponse> getAllNonAdvisers(Principal principal) {
 
         UserEntity user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(UserNotFoundException::new);
@@ -172,24 +180,24 @@ public class UserServiceImpl implements UserService {
 
         return users
                 .stream()
-                .map(this::mapToNonAdvisor)
+                .map(this::mapToNonAdviser)
                 .collect(Collectors.toList());
     }
 
-    private NonAdvisorsResponse mapToNonAdvisor(UserEntity userEntity) {
-        NonAdvisorsResponse response = new NonAdvisorsResponse();
+    private NonAdvisersResponse mapToNonAdviser(UserEntity userEntity) {
+        NonAdvisersResponse response = new NonAdvisersResponse();
         response.setUserId(userEntity.getId());
         response.setName(getDisplayName(userEntity));
 
         return response;
     }
 
-    private AdvisorDTO mapToAdvisorDTO(UserEntity advisor) {
-        AdvisorDTO advisorDTO = new AdvisorDTO();
-        advisorDTO.setId(advisor.getId());
-        advisorDTO.setName(getDisplayName(advisor));
-        advisorDTO.setEmail(advisor.getEmail());
-        return advisorDTO;
+    private AdviserDTO mapToAdviserDTO(UserEntity adviser) {
+        AdviserDTO adviserDTO = new AdviserDTO();
+        adviserDTO.setId(adviser.getId());
+        adviserDTO.setName(getDisplayName(adviser));
+        adviserDTO.setEmail(adviser.getEmail());
+        return adviserDTO;
     }
 
     private static String getDisplayName(UserEntity user) {

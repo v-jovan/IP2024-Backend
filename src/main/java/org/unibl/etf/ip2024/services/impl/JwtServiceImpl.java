@@ -88,10 +88,6 @@ public class JwtServiceImpl implements JwtService {
                 .getBody();
     }
 
-//    public long getExpirationTime() {
-//        return jwtExpiration;
-//    }
-
     private Key getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSigningKey);
         return Keys.hmacShaKeyFor(keyBytes);

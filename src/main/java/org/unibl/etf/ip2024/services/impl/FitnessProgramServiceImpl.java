@@ -19,6 +19,7 @@ import org.unibl.etf.ip2024.models.entities.*;
 import org.unibl.etf.ip2024.repositories.*;
 import org.unibl.etf.ip2024.services.FitnessProgramService;
 import org.unibl.etf.ip2024.services.ImageUploadService;
+import org.unibl.etf.ip2024.services.LogService;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -39,6 +40,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
     private final ImageUploadService imageUploadService;
     private final ProgramAttributeEntityRepository programAttributeRepository;
     private final AttributeValueEntityRepository attributeValueRepository;
+    private final LogService logService;
     private final ModelMapper modelMapper;
 
     /**
@@ -131,6 +133,8 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
             savedProgram.setProgramAttributes(programAttributes);
         }
 
+        logService.log(principal, "Dodavanje fitness programa");
+
         return new FitnessProgramResponse(savedProgram.getId());
     }
 
@@ -150,6 +154,8 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
                 .orElseThrow(() -> new UserNotFoundException("Korisnik nije pronađen"));
         programs = fitnessProgramRepository.findAllByUserId(user.getId(), pageable);
 
+        logService.log(principal, "Pregled mojih fitness programa");
+
         return programs.map(this::getFitnessProgramListResponse);
     }
 
@@ -163,6 +169,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
     @Transactional
     public Page<FitnessProgramHomeResponse> getAllFitnessPrograms(Pageable pageable) {
         Page<FitnessProgramEntity> programs = fitnessProgramRepository.findAll(pageable);
+        logService.log(null, "Pregled svih fitness programa");
         return programs.map(this::getFitnessProgramHomeResponse);
     }
 
@@ -218,6 +225,8 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
                 .map(ProgramImageEntity::getImageUrl)
                 .collect(Collectors.toList());
         response.setImages(imageUrls);
+
+        logService.log(null, "Pregled fitness programa sa ID-jem " + id);
 
         return response;
     }
@@ -303,6 +312,8 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
             fitnessProgramEntity.setProgramAttributes(programAttributes);
         }
 
+        logService.log(null, "Ažuriranje fitness programa sa ID-jem " + programId);
+
         fitnessProgramRepository.saveAndFlush(fitnessProgramEntity);
 
         return new FitnessProgramResponse(fitnessProgramEntity.getId());
@@ -318,6 +329,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
     @Override
     public Page<FitnessProgramHomeResponse> getAllFitnessProgramsByAttributeValue(Integer attributeValueId, Pageable pageable) {
         Page<FitnessProgramEntity> programs = fitnessProgramRepository.findDistinctByProgramAttributes_AttributeValue_Id(attributeValueId, pageable);
+        logService.log(null, "Pregled fitness programa sa vrijednost atributa sa ID-jem " + attributeValueId);
         return programs.map(this::getFitnessProgramHomeResponse);
     }
 
@@ -336,6 +348,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
                 .map(AttributeValueEntity::getId)
                 .collect(Collectors.toList());
         Page<FitnessProgramEntity> programs = fitnessProgramRepository.findDistinctByProgramAttributes_AttributeValue_IdIn(attributeValueIds, pageable);
+        logService.log(null, "Pregled fitness programa sa atributom sa ID-jem " + attributeId);
         return programs.map(this::getFitnessProgramHomeResponse);
     }
 
@@ -349,6 +362,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
     @Override
     public Page<FitnessProgramHomeResponse> getAllFitnessProgramsByCategoryId(Integer categoryId, Pageable pageable) {
         Page<FitnessProgramEntity> programs = fitnessProgramRepository.findAllByCategoryId(categoryId, pageable);
+        logService.log(null, "Pregled fitness programa sa kategorijom sa ID-jem " + categoryId);
         return programs.map(this::getFitnessProgramHomeResponse);
     }
 
@@ -361,6 +375,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
     @Override
     public List<CategoryDTO> getAllCategoriesWithAttributesAndValues() {
         List<CategoryEntity> categories = categoryRepository.findAllWithProgramsAndAttributesAndValues();
+        logService.log(null, "Pregled svih kategorija sa atributima i vrijednostima");
 
         return categories.stream()
                 .map(this::convertToCategoryDTO)
@@ -386,6 +401,8 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
         for (ProgramImageEntity imageEntity : programImages) {
             imageUploadService.deleteImageFile(imageEntity.getImageUrl());
         }
+
+        logService.log(principal, "Brisanje fitness programa sa ID-jem " + programId);
 
         fitnessProgramRepository.delete(program);
     }

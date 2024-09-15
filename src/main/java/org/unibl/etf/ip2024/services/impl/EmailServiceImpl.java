@@ -9,11 +9,13 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.exceptions.EmailSendException;
 import org.unibl.etf.ip2024.services.EmailService;
+import org.unibl.etf.ip2024.services.LogService;
 
 @Service
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
+    private final LogService logService;
 
     @Override
     @Async
@@ -25,6 +27,8 @@ public class EmailServiceImpl implements EmailService {
             helper.setTo(to);
             helper.setSubject("Aktivacija naloga");
             helper.setText(buildActivationEmail(activationLink), true);
+
+            logService.log(null, "Slanje emaila za aktivaciju naloga");
 
             mailSender.send(message);
         } catch (MessagingException e) {
@@ -43,6 +47,8 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(subject);
             helper.setText(text, true);
 
+            logService.log(null, "Slanje emaila");
+
             mailSender.send(message);
         } catch (MessagingException e) {
             throw new EmailSendException("Greška prilikom slanja emaila", e);
@@ -55,7 +61,7 @@ public class EmailServiceImpl implements EmailService {
                 "<h2>Aktivacija naloga</h2>" +
                 "<p>Hvala što ste se registrovali. Kliknite na link ispod kako biste aktivirali vaš nalog:</p>" +
                 "<a href=\"" + activationLink + "\">Aktivirajte nalog</a>" +
-                "<p>Link je validan 24 sata.</p>" +
+                "<p>Drago nam je što se družimo.</p>" +
                 "<p>Hvala,</p>" +
                 "<p>Vaš tim</p>" +
                 "</div>";

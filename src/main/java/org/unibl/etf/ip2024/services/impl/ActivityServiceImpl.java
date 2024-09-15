@@ -11,6 +11,7 @@ import org.unibl.etf.ip2024.models.entities.UserEntity;
 import org.unibl.etf.ip2024.repositories.ActivityEntityRepository;
 import org.unibl.etf.ip2024.repositories.UserEntityRepository;
 import org.unibl.etf.ip2024.services.ActivityService;
+import org.unibl.etf.ip2024.services.LogService;
 
 import java.security.Principal;
 import java.sql.Date;
@@ -23,6 +24,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     private final ActivityEntityRepository activityRepository;
     private final UserEntityRepository userRepository;
+    private final LogService logService;
     private final ModelMapper modelMapper;
 
     @Override
@@ -31,6 +33,8 @@ public class ActivityServiceImpl implements ActivityService {
                 .orElseThrow(() -> new UserNotFoundException("Korisnik nije pronađen"));
 
         List<ActivityEntity> activityEntities = activityRepository.findAllByUser(user);
+
+        logService.log(principal, "Pregled aktivnosti");
 
         return activityEntities
                 .stream()
@@ -52,6 +56,8 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setLogDate(Date.valueOf(activityRequest.getLogDate()));
 
         ActivityEntity savedActivity = activityRepository.saveAndFlush(activity);
+
+        logService.log(principal, "Dodavanje aktivnosti");
 
         return modelMapper.map(savedActivity, ActivityResponse.class);
     }

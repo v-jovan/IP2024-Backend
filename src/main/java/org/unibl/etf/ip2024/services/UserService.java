@@ -2,10 +2,10 @@ package org.unibl.etf.ip2024.services;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
-import org.unibl.etf.ip2024.models.dto.AdvisorDTO;
+import org.unibl.etf.ip2024.models.dto.AdviserDTO;
 import org.unibl.etf.ip2024.models.dto.requests.UpdatePasswordRequest;
 import org.unibl.etf.ip2024.models.dto.requests.UpdateUserRequest;
-import org.unibl.etf.ip2024.models.dto.response.NonAdvisorsResponse;
+import org.unibl.etf.ip2024.models.dto.response.NonAdvisersResponse;
 import org.unibl.etf.ip2024.models.dto.response.UserInfoResponse;
 
 import java.security.Principal;
@@ -20,6 +20,6 @@ public interface UserService extends UserDetailsService  {
     Boolean isActive(String username);
     Integer getUserId(String username);
     UserInfoResponse getUserInfoById(Integer id);
-    List<AdvisorDTO> getAllAdvisors();
-    List<NonAdvisorsResponse> getAllNonAdvisors(Principal principal);
+    List<AdviserDTO> getAllAdvisers();
+    List<NonAdvisersResponse> getAllNonAdvisers(Principal principal);
 }

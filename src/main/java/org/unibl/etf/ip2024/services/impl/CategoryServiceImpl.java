@@ -14,6 +14,7 @@ import org.unibl.etf.ip2024.repositories.CategoryEntityRepository;
 import org.unibl.etf.ip2024.repositories.SubscriptionEntityRepository;
 import org.unibl.etf.ip2024.repositories.UserEntityRepository;
 import org.unibl.etf.ip2024.services.CategoryService;
+import org.unibl.etf.ip2024.services.LogService;
 
 import java.security.Principal;
 import java.util.List;
@@ -27,11 +28,13 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryEntityRepository categoryRepository;
     private final UserEntityRepository userRepository;
     private final SubscriptionEntityRepository subscriptionRepository;
+    private final LogService logService;
 
-    public CategoryServiceImpl(CategoryEntityRepository categoryRepository, UserEntityRepository userRepository, SubscriptionEntityRepository subscriptionRepository) {
+    public CategoryServiceImpl(CategoryEntityRepository categoryRepository, UserEntityRepository userRepository, SubscriptionEntityRepository subscriptionRepository, LogService logService) {
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.logService = logService;
     }
 
 
@@ -49,11 +52,16 @@ public class CategoryServiceImpl implements CategoryService {
         categoryEntity.setDescription(categoryRequest.getDescription());
         categoryRepository.saveAndFlush(categoryEntity);
 
+        logService.log(null,"Dodavanje kategorije");
+
         return categoryEntity;
     }
 
     @Override
     public List<CategoryEntity> listCategories() {
+
+        logService.log(null,"Pregled kategorija");
+
         return categoryRepository.findAll();
     }
 
@@ -69,6 +77,8 @@ public class CategoryServiceImpl implements CategoryService {
                 .stream()
                 .map(subscription -> subscription.getCategory().getId())
                 .collect(Collectors.toSet());
+
+        logService.log(principal,"Pregled kategorija sa pretplatom");
 
 
         return categories.stream()
@@ -102,6 +112,8 @@ public class CategoryServiceImpl implements CategoryService {
             subscription.setCategory(category);
             subscriptionRepository.saveAndFlush(subscription);
         }
+
+        logService.log(principal,"Pretplata na kategoriju");
 
         return category;
     }

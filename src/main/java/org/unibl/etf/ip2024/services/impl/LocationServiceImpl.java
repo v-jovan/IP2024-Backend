@@ -1,23 +1,23 @@
 package org.unibl.etf.ip2024.services.impl;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.exceptions.LocationAlreadyExistsException;
 import org.unibl.etf.ip2024.models.entities.LocationEntity;
 import org.unibl.etf.ip2024.repositories.LocationEntityRepository;
 import org.unibl.etf.ip2024.services.LocationService;
+import org.unibl.etf.ip2024.services.LogService;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class LocationServiceImpl implements LocationService {
 
     private final LocationEntityRepository locationRepository;
-
-    public LocationServiceImpl(LocationEntityRepository locationRepository) {
-        this.locationRepository = locationRepository;
-    }
+    private final LogService logService;
 
     @Override
     @Transactional
@@ -30,11 +30,14 @@ public class LocationServiceImpl implements LocationService {
         locationEntity.setName(name);
         locationRepository.saveAndFlush(locationEntity);
 
+        logService.log(null, "Dodavanje lokacije");
+
         return locationEntity;
     }
 
     @Override
     public List<LocationEntity> listLocations() {
+        logService.log(null, "Prikaz svih lokacija");
         return locationRepository.findAll();
     }
 }

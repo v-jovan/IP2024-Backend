@@ -2,10 +2,10 @@ package org.unibl.etf.ip2024.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.unibl.etf.ip2024.models.dto.AdvisorDTO;
+import org.unibl.etf.ip2024.models.dto.AdviserDTO;
 import org.unibl.etf.ip2024.models.dto.requests.UpdatePasswordRequest;
 import org.unibl.etf.ip2024.models.dto.requests.UpdateUserRequest;
-import org.unibl.etf.ip2024.models.dto.response.NonAdvisorsResponse;
+import org.unibl.etf.ip2024.models.dto.response.NonAdvisersResponse;
 import org.unibl.etf.ip2024.models.dto.response.UserInfoResponse;
 import org.unibl.etf.ip2024.services.UserService;
 
@@ -63,13 +63,13 @@ public class UserController {
         return ResponseEntity.ok(this.userService.isActive(username));
     }
 
-    @GetMapping("/advisors")
-    public ResponseEntity<List<AdvisorDTO>> getAdvisors() {
-        return ResponseEntity.ok(userService.getAllAdvisors());
+    @GetMapping("/advisers")
+    public ResponseEntity<List<AdviserDTO>> getAdvisers() {
+        return ResponseEntity.ok(userService.getAllAdvisers());
     }
 
-    @GetMapping("/non-advisors")
-    public ResponseEntity<List<NonAdvisorsResponse>> getNonAdvisors(Principal principal) {
-        return ResponseEntity.ok(userService.getAllNonAdvisors(principal));
+    @GetMapping("/non-advisers")
+    public ResponseEntity<List<NonAdvisersResponse>> getNonAdvisers(Principal principal) {
+        return ResponseEntity.ok(userService.getAllNonAdvisers(principal));
     }
 }

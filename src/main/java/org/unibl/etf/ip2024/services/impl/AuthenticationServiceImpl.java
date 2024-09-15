@@ -30,6 +30,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserService userService; // User service for loading user details
     private final CityService cityService; // City service
     private final AuthenticationManager authenticationManager; // Manager for authentication
+    private final LogService logService; // Log service
     private final EmailService emailService;
 
     @Value("${frontend.url}")
@@ -61,6 +62,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var jwt = jwtService.generateToken(userDetails); // Generate a JWT token for the user
         String activationLink = frontendUrl + "/auth/activate?token=" + jwt; // Generate an activation link
         emailService.sendActivationEmail(user.getEmail(), activationLink); // Send an activation email to the user
+
+        logService.log(null, "Registracija korisnika " + user.getUsername() ); // Log the user registration
+
         return JwtAuthenticationResponse.builder().token(jwt).build(); // Return the JWT token
     }
 
@@ -71,6 +75,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String activationLink = frontendUrl + "/auth/activate?token=" + token;
         emailService.sendActivationEmail(user.getEmail(), activationLink);
+
+        logService.log(null, "Ponovno slanje emaila za aktivaciju korisniku " + user.getUsername() );
+
         return ResponseEntity.ok("Email je ponovo poslat.");
     }
 
@@ -84,6 +91,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         UserDetails userDetails = userService.loadUserByUsername(request.getEmailOrUsername());
         var jwt = jwtService.generateToken(userDetails);
+
+        logService.log(null, "Prijava korisnika " + request.getEmailOrUsername() );
+
         return JwtAuthenticationResponse.builder().token(jwt).build();
     }
 

@@ -1,5 +1,6 @@
 package org.unibl.etf.ip2024.services.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.models.entities.CategoryEntity;
@@ -9,6 +10,7 @@ import org.unibl.etf.ip2024.repositories.CategoryEntityRepository;
 import org.unibl.etf.ip2024.repositories.FitnessProgramEntityRepository;
 import org.unibl.etf.ip2024.repositories.SubscriptionEntityRepository;
 import org.unibl.etf.ip2024.services.EmailService;
+import org.unibl.etf.ip2024.services.LogService;
 import org.unibl.etf.ip2024.services.SubscriptionService;
 
 import java.time.LocalDateTime;
@@ -16,21 +18,15 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class SubscriptionServiceImpl implements SubscriptionService {
 
     private final FitnessProgramEntityRepository fitnessProgramRepository;
     private final SubscriptionEntityRepository subscriptionRepository;
     private final EmailService emailService;
     private final CategoryEntityRepository categoryRepository;
+    private final LogService logService;
 
-    public SubscriptionServiceImpl(FitnessProgramEntityRepository fitnessProgramRepository,
-                               SubscriptionEntityRepository subscriptionRepository,
-                               EmailService emailService, CategoryEntityRepository categoryRepository) {
-        this.fitnessProgramRepository = fitnessProgramRepository;
-        this.subscriptionRepository = subscriptionRepository;
-        this.emailService = emailService;
-        this.categoryRepository = categoryRepository;
-    }
 
     @Scheduled(cron = "0 0 6 * * ?")
     public void sendDailySubscriptionEmails() {
@@ -47,6 +43,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 }
             }
         }
+        logService.log(null, "Slanje emailova o novim programima");
+
     }
 
     private String createEmailContent(List<FitnessProgramEntity> newPrograms) {

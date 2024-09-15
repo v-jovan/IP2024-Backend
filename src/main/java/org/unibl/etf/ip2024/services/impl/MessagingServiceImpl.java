@@ -11,6 +11,7 @@ import org.unibl.etf.ip2024.models.entities.UserEntity;
 import org.unibl.etf.ip2024.models.enums.Roles;
 import org.unibl.etf.ip2024.repositories.MessageEntityRepository;
 import org.unibl.etf.ip2024.repositories.UserEntityRepository;
+import org.unibl.etf.ip2024.services.LogService;
 import org.unibl.etf.ip2024.services.MessagingService;
 
 import java.security.Principal;
@@ -28,6 +29,7 @@ public class MessagingServiceImpl implements MessagingService {
 
     private final MessageEntityRepository messageEntityRepository;
     private final UserEntityRepository userEntityRepository;
+    private final LogService logService;
 
     @Override
     public MessageDTO createMessage(Principal principal, MessageDTO messageDTO) {
@@ -58,6 +60,8 @@ public class MessagingServiceImpl implements MessagingService {
         savedMessageDTO.setContent(savedMessage.getContent());
         savedMessageDTO.setSentAt(savedMessage.getSentAt());
 
+        logService.log(principal, "Slanje poruke");
+
         return savedMessageDTO;
     }
 
@@ -76,7 +80,7 @@ public class MessagingServiceImpl implements MessagingService {
             UserEntity otherUser = message.getSender().getId().equals(userId)
                     ? message.getRecipient()
                     : message.getSender();
-            
+
             if (!otherUser.getRole().equals(Roles.INSTRUCTOR)) {
                 Integer otherUserId = otherUser.getId();
 
@@ -104,6 +108,8 @@ public class MessagingServiceImpl implements MessagingService {
 
         conversationDTOs.sort((c1, c2) -> c2.getLastMessageTime().compareTo(c1.getLastMessageTime()));
 
+        logService.log(principal, "Pregled konverzacija");
+
         return conversationDTOs;
     }
 
@@ -127,6 +133,8 @@ public class MessagingServiceImpl implements MessagingService {
         if (!unreadMessages.isEmpty()) {
             messageEntityRepository.saveAll(unreadMessages);
         }
+
+        logService.log(principal, "Pregled poruka iz odabrane konverzacije");
 
         return messages.stream()
                 .map(this::convertToDTO)
@@ -173,6 +181,4 @@ public class MessagingServiceImpl implements MessagingService {
         }
         return displayName;
     }
-
-
 }

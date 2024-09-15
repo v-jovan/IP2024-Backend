@@ -11,6 +11,7 @@ import org.unibl.etf.ip2024.repositories.CommentEntityRepository;
 import org.unibl.etf.ip2024.repositories.FitnessProgramEntityRepository;
 import org.unibl.etf.ip2024.repositories.UserEntityRepository;
 import org.unibl.etf.ip2024.services.CommentService;
+import org.unibl.etf.ip2024.services.LogService;
 
 import java.security.Principal;
 import java.sql.Timestamp;
@@ -23,11 +24,13 @@ public class CommentServiceImpl implements CommentService {
     private final CommentEntityRepository commentRepository;
     private final UserEntityRepository userRepository;
     private final FitnessProgramEntityRepository programRepository;
+    private final LogService logService;
 
-    public CommentServiceImpl(CommentEntityRepository commentRepository, UserEntityRepository userRepository, FitnessProgramEntityRepository programRepository) {
+    public CommentServiceImpl(CommentEntityRepository commentRepository, UserEntityRepository userRepository, FitnessProgramEntityRepository programRepository, LogService logService) {
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.programRepository = programRepository;
+        this.logService = logService;
     }
 
     @Override
@@ -48,6 +51,8 @@ public class CommentServiceImpl implements CommentService {
 
             commentRepository.saveAndFlush(newComment);
 
+            logService.log(principal, "Dodavanje komentara");
+
             return new CommentResponse(
                     newComment.getId(),
                     user.getId(),
@@ -65,6 +70,7 @@ public class CommentServiceImpl implements CommentService {
     public Page<CommentResponse> getComments(Integer programId, Pageable pageable) {
         Page<CommentEntity> commentPage = commentRepository.findAllByFitnessProgramId(programId, pageable);
 
+        logService.log(null, "Pregled komentara");
         return commentPage.map(comment ->
                 new CommentResponse(
                         comment.getId(),

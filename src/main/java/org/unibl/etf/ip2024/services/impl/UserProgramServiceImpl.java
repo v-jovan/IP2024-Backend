@@ -15,6 +15,7 @@ import org.unibl.etf.ip2024.models.enums.Status;
 import org.unibl.etf.ip2024.repositories.FitnessProgramEntityRepository;
 import org.unibl.etf.ip2024.repositories.UserEntityRepository;
 import org.unibl.etf.ip2024.repositories.UserProgramEntityRepository;
+import org.unibl.etf.ip2024.services.LogService;
 import org.unibl.etf.ip2024.services.UserProgramService;
 
 import java.security.Principal;
@@ -29,11 +30,13 @@ public class UserProgramServiceImpl implements UserProgramService {
     private final UserEntityRepository userRepository;
     private final UserProgramEntityRepository userProgramRepository;
     private final FitnessProgramEntityRepository fitnessProgramRepository;
+    private final LogService logService;
 
-    public UserProgramServiceImpl(UserEntityRepository userRepository, UserProgramEntityRepository userProgramRepository, FitnessProgramEntityRepository fitnessProgramRepository) {
+    public UserProgramServiceImpl(UserEntityRepository userRepository, UserProgramEntityRepository userProgramRepository, FitnessProgramEntityRepository fitnessProgramRepository, LogService logService) {
         this.userRepository = userRepository;
         this.userProgramRepository = userProgramRepository;
         this.fitnessProgramRepository = fitnessProgramRepository;
+        this.logService = logService;
     }
 
     @Override
@@ -53,6 +56,8 @@ public class UserProgramServiceImpl implements UserProgramService {
                 }
             }
         });
+
+        logService.log(principal, "Prikaz svih programa korisnika");
 
         return userProgramsPage.map(this::mapToFitnessProgramListResponse);
     }
@@ -76,6 +81,8 @@ public class UserProgramServiceImpl implements UserProgramService {
 
         UserProgramEntity savedUser = userProgramRepository.saveAndFlush(userProgram);
 
+        logService.log(principal, "Kreiranje programa");
+
         return mapToUserProgramResponse(savedUser);
     }
 
@@ -90,6 +97,8 @@ public class UserProgramServiceImpl implements UserProgramService {
         if (!userProgram.getUserByUserId().getId().equals(user.getId())) {
             throw new ProgramNotFoundException("Program nije pronađen");
         }
+
+        logService.log(principal, "Brisanje programa");
 
         userProgramRepository.delete(userProgram);
     }

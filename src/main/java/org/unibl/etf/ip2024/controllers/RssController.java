@@ -1,5 +1,6 @@
 package org.unibl.etf.ip2024.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,12 +13,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/news")
+@RequiredArgsConstructor
 public class RssController {
     private final RssNewsService rssNewsService;
-
-    public RssController(RssNewsService rssNewsService) {
-        this.rssNewsService = rssNewsService;
-    }
 
     @GetMapping()
     public ResponseEntity<List<RssItemDTO>> getDailyNews() {

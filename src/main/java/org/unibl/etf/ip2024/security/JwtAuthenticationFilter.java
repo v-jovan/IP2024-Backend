@@ -32,9 +32,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    // Custom filter for handling JWT authentication
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-    // Logger for logging information
     private final JwtService jwtService; // Service for working with JWT tokens
     private final UserService userService; // Service for working with user details
     private final ObjectMapper objectMapper; // Mapper for converting objects to/from JSON

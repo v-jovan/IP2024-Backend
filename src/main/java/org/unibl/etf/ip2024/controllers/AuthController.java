@@ -48,6 +48,7 @@ public class AuthController {
         return ResponseEntity.ok(isTaken);
     }
 
+    // Endpoint for resending activation email
     @PostMapping("/resend-email")
     public ResponseEntity<String> resendEmail(@RequestBody ResendEmailRequest request) {
         return authenticationService.resendEmail(request.getEmail(), request.getToken());

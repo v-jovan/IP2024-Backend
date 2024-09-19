@@ -1,5 +1,6 @@
 package org.unibl.etf.ip2024.services.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.unibl.etf.ip2024.models.entities.CityEntity;
 import org.unibl.etf.ip2024.repositories.CityEntityRepository;
@@ -9,15 +10,11 @@ import org.unibl.etf.ip2024.services.LogService;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CityServiceImpl implements CityService {
 
     private final CityEntityRepository repository;
     private final LogService logService;
-
-    public CityServiceImpl(CityEntityRepository repository, LogService logService) {
-        this.repository = repository;
-        this.logService = logService;
-    }
 
     @Override
     public CityEntity addCity(String name) {

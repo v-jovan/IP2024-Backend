@@ -11,138 +11,125 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.unibl.etf.ip2024.models.dto.response.ErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    // Handle BadCredentialsException
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentials(HttpServletRequest request, BadCredentialsException exception) {
+        return buildErrorResponse(request, HttpStatus.UNAUTHORIZED, "Kredencijali nisu ispravni", exception);
+    }
+
+    // Handle AccountStatusException
+    @ExceptionHandler(AccountStatusException.class)
+    public ResponseEntity<ErrorResponse> handleAccountStatusException(HttpServletRequest request, AccountStatusException exception) {
+        return buildErrorResponse(request, HttpStatus.FORBIDDEN, "Nalog je blokiran", exception);
+    }
+
+    // Handle AccessDeniedException
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(HttpServletRequest request, AccessDeniedException exception) {
+        return buildErrorResponse(request, HttpStatus.FORBIDDEN, "Nemate permisija za pristup ovom resursu", exception);
+    }
+
+    // Handle JWT Exceptions
+    @ExceptionHandler({SignatureException.class, ExpiredJwtException.class})
+    public ResponseEntity<ErrorResponse> handleJwtException(HttpServletRequest request, Exception exception) {
+        String message = exception instanceof SignatureException ? "JWT token nije validan" : "JWT token je istekao";
+        return buildErrorResponse(request, HttpStatus.UNAUTHORIZED, message, exception);
+    }
+
+    // Handle IllegalArgumentException
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException exception) {
+        return buildErrorResponse(request, HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
+    }
+
+    // Handle Custom Exceptions (e.g., UserAlreadyExistsException)
+    @ExceptionHandler({
+            UserAlreadyExistsException.class,
+            UserNotFoundException.class,
+            InvalidTokenException.class,
+            EmailSendException.class,
+            AccountActivationException.class,
+            InvalidOldPasswordException.class,
+            RssFeedException.class,
+            ExerciseFetchException.class,
+            CategoryNotFoundException.class,
+            LocationNotFoundException.class,
+            CategoryAlreadyExistsException.class,
+            LocationAlreadyExistsException.class,
+            ProgramAlreadyExistsException.class,
+            ImageUploadException.class,
+            AttributeValueNotFoundException.class,
+            ProgramNotFoundException.class,
+            UnauthorizedAccessException.class
+    })
+    public ResponseEntity<ErrorResponse> handleCustomExceptions(HttpServletRequest request, Exception exception) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        if (exception instanceof UserAlreadyExistsException ||
+                exception instanceof CategoryAlreadyExistsException ||
+                exception instanceof LocationAlreadyExistsException ||
+                exception instanceof ProgramAlreadyExistsException) {
+            status = HttpStatus.CONFLICT;
+        } else if (exception instanceof UserNotFoundException ||
+                exception instanceof CategoryNotFoundException ||
+                exception instanceof LocationNotFoundException ||
+                exception instanceof AttributeValueNotFoundException ||
+                exception instanceof ProgramNotFoundException) {
+            status = HttpStatus.NOT_FOUND;
+        } else if (exception instanceof InvalidTokenException || exception instanceof AccountActivationException || exception instanceof InvalidOldPasswordException) {
+            status = HttpStatus.BAD_REQUEST;
+        } else if (exception instanceof UnauthorizedAccessException) {
+            status = HttpStatus.UNAUTHORIZED;
+        }
+
+        return buildErrorResponse(request, status, exception.getMessage(), exception);
+    }
+
+    // Handle MethodArgumentTypeMismatchException (e.g., invalid path variable)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatchException(HttpServletRequest request, MethodArgumentTypeMismatchException exception) {
+        String message = "Neispravna parametar: " + exception.getName();
+        return buildErrorResponse(request, HttpStatus.NOT_FOUND, message, exception);
+    }
+
+    // Handle HttpRequestMethodNotSupportedException
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupportedException(HttpServletRequest request, HttpRequestMethodNotSupportedException exception) {
+        String message = "Tražena metoda '" + exception.getMethod() + "' nie podržana";
+        return buildErrorResponse(request, HttpStatus.METHOD_NOT_ALLOWED, message, exception);
+    }
+
+    // Handle All Other Exceptions
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(HttpServletRequest request, Exception exception) {
+    public ResponseEntity<ErrorResponse> handleAllExceptions(HttpServletRequest request, Exception exception) {
+        return buildErrorResponse(request, HttpStatus.INTERNAL_SERVER_ERROR, "Došlo je do greške prilikom obrade zahtjeva", exception);
+    }
+
+    // Helper method to build error response
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpServletRequest request, HttpStatus status, String message, Exception exception) {
         ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setStatus(status.value());
+        errorResponse.setError(status.getReasonPhrase());
+        errorResponse.setMessage(message);
         errorResponse.setPath(request.getRequestURI());
 
-        if (exception instanceof BadCredentialsException) {
-            errorResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-            errorResponse.setError(HttpStatus.UNAUTHORIZED.getReasonPhrase());
-            errorResponse.setMessage("Kredencijali nisu ispravni");
-            logger.warn("Bad credentials: {}", exception.getMessage());
-        } else if (exception instanceof AccountStatusException) {
-            errorResponse.setStatus(HttpStatus.FORBIDDEN.value());
-            errorResponse.setError(HttpStatus.FORBIDDEN.getReasonPhrase());
-            errorResponse.setMessage("Nalog je blokiran");
-            logger.warn("Account status exception: {}", exception.getMessage());
-        } else if (exception instanceof AccessDeniedException) {
-            errorResponse.setStatus(HttpStatus.FORBIDDEN.value());
-            errorResponse.setError(HttpStatus.FORBIDDEN.getReasonPhrase());
-            errorResponse.setMessage("Nemate persmisija za pristup ovom resursu");
-            logger.warn("Access denied: {}", exception.getMessage());
-        } else if (exception instanceof SignatureException || exception instanceof ExpiredJwtException) {
-            errorResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-            errorResponse.setError(HttpStatus.UNAUTHORIZED.getReasonPhrase());
-            errorResponse.setMessage(exception instanceof SignatureException ? "JWT token nije validan" : "JWT token je istekao");
-            logger.warn("JWT exception: {}", exception.getMessage());
-        } else if (exception instanceof IllegalArgumentException) {
-            errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-            errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.warn("Illegal argument: {}", exception.getMessage());
-        } else if (exception instanceof UserAlreadyExistsException) {
-            errorResponse.setStatus(HttpStatus.CONFLICT.value());
-            errorResponse.setError(HttpStatus.CONFLICT.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.warn("User already exists: {}", exception.getMessage());
-        } else if (exception instanceof UserNotFoundException) {
-            errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
-            errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.warn("User not found: {}", exception.getMessage());
-        } else if (exception instanceof InvalidTokenException) {
-            errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-            errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.warn("Invalid token: {}", exception.getMessage());
-        } else if (exception instanceof EmailSendException) {
-            errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            errorResponse.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-            errorResponse.setMessage("Greska prilikom slanja emaila: " + exception.getMessage());
-            logger.error("Email send exception: {}", exception.getMessage());
-        } else if (exception instanceof AccountActivationException) {
-            errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-            errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.warn("Account activation error: {}", exception.getMessage());
-        } else if (exception instanceof InvalidOldPasswordException) {
-            errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-            errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.warn("Invalid old password: {}", exception.getMessage());
-        } else if (exception instanceof RssFeedException) {
-            errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            errorResponse.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.error("RSS feed error: {}", exception.getMessage());
-        } else if (exception instanceof ExerciseFetchException) {
-            errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            errorResponse.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.error("Exercise fetch error: {}", exception.getMessage());
-        } else if (exception instanceof CategoryNotFoundException) {
-            errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
-            errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.error("Category not found: {}", exception.getMessage());
-        } else if (exception instanceof LocationNotFoundException) {
-            errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
-            errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.error("Location not found: {}", exception.getMessage());
-        } else if (exception instanceof CategoryAlreadyExistsException) {
-            errorResponse.setStatus(HttpStatus.CONFLICT.value());
-            errorResponse.setError(HttpStatus.CONFLICT.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.error("Category already exists: {}", exception.getMessage());
-        } else if (exception instanceof LocationAlreadyExistsException) {
-            errorResponse.setStatus(HttpStatus.CONFLICT.value());
-            errorResponse.setError(HttpStatus.CONFLICT.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.error("Location already exists: {}", exception.getMessage());
-        } else if (exception instanceof ProgramAlreadyExistsException) {
-            errorResponse.setStatus(HttpStatus.CONFLICT.value());
-            errorResponse.setError(HttpStatus.CONFLICT.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.error("Program already exists: {}", exception.getMessage());
-        } else if (exception instanceof ImageUploadException) {
-            errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            errorResponse.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.error("Image upload error: {}", exception.getMessage());
-        } else if (exception instanceof AttributeValueNotFoundException) {
-            errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
-            errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.error("Attribute value not found: {}", exception.getMessage());
-        } else if (exception instanceof ProgramNotFoundException) {
-            errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
-            errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.error("Program not found: {}", exception.getMessage());
-        } else if (exception instanceof UnauthorizedAccessException) {
-            errorResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-            errorResponse.setError(HttpStatus.UNAUTHORIZED.getReasonPhrase());
-            errorResponse.setMessage(exception.getMessage());
-            logger.error("Unauthorized: {}", exception.getMessage());
+        if (status.is5xxServerError()) {
+            logger.error("{}: {}", status.getReasonPhrase(), exception.getMessage());
         } else {
-            errorResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
-            errorResponse.setError(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase());
-            errorResponse.setMessage("Došlo je do greške prilikom obrade zahtjeva");
-            logger.error("Internal server error: {}", exception.getMessage());
+            logger.warn("{}: {}", status.getReasonPhrase(), exception.getMessage());
         }
 
         return ResponseEntity
-                .status(errorResponse.getStatus())
+                .status(status)
                 .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                 .body(errorResponse);
     }

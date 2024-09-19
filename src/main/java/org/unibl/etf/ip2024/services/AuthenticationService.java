@@ -9,12 +9,8 @@ import org.unibl.etf.ip2024.models.dto.requests.SignUpRequest;
 @Service
 public interface AuthenticationService {
     JwtAuthenticationResponse signup(SignUpRequest request);
-
     ResponseEntity<String> resendEmail(String email, String token);
-
     JwtAuthenticationResponse login(LoginRequest request);
-
     boolean activateAccount(String token);
-
     boolean checkUsername(String username);
 }

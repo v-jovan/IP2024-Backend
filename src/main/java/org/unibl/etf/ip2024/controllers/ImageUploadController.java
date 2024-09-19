@@ -16,6 +16,7 @@ public class ImageUploadController {
 
     private final ImageUploadService imageUploadService;
 
+    // Endpoint for uploading image
     @PostMapping
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
         try {

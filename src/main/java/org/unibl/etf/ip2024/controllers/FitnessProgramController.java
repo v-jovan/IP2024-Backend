@@ -30,6 +30,18 @@ public class FitnessProgramController {
     private final FitnessProgramService fitnessProgramService;
     Logger log = LoggerFactory.getLogger(FitnessProgramController.class);
 
+
+    /**
+     * Handles HTTP POST requests to create a new fitness program.
+     * Consumes multipart/form-data.
+     *
+     * @param programRequest the request object containing the fitness program details
+     * @param files          the list of files to be associated with the fitness program
+     * @param principal      the security principal of the authenticated user
+     * @return a ResponseEntity containing the created FitnessProgramResponse object if successful,
+     * or a BAD_REQUEST status if an error occurs,
+     * or an INTERNAL_SERVER_ERROR status if an unexpected error occurs
+     */
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<FitnessProgramResponse> createProgram(
             @RequestPart("program") FitnessProgramRequest programRequest,
@@ -92,7 +104,6 @@ public class FitnessProgramController {
             programs = fitnessProgramService.getAllFitnessPrograms(pageable);
         }
 
-        // Return the fetched programs wrapped in a ResponseEntity
         return ResponseEntity.ok(programs);
     }
 
@@ -105,8 +116,8 @@ public class FitnessProgramController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<FitnessProgramResponse> getProgramById(@PathVariable Integer id) {
-        if (id == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if (id == null || id <= 0) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         FitnessProgramResponse programResponse = fitnessProgramService.getFitnessProgram(id);
         return ResponseEntity.ok(programResponse);
@@ -162,7 +173,7 @@ public class FitnessProgramController {
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
             @RequestPart(value = "removedImages", required = false) List<String> removedImages) {
         log.info("Updating program with id: {}", id);
-        if (id == null) {
+        if (id == null || id <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         try {
@@ -179,13 +190,16 @@ public class FitnessProgramController {
     /**
      * Handles HTTP DELETE requests to delete a fitness program by its ID.
      *
-     * @param programId the ID of the fitness program to delete
+     * @param id the ID of the fitness program to delete
      * @param principal the security principal of the authenticated user
      * @return a ResponseEntity with status 204 No Content if the deletion is successful
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProgram(@PathVariable("id") Integer programId, Principal principal) throws IOException {
-        fitnessProgramService.deleteFitnessProgram(programId, principal);
+    public ResponseEntity<Void> deleteProgram(@PathVariable("id") Integer id, Principal principal) throws IOException {
+        if (id == null || id <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        fitnessProgramService.deleteFitnessProgram(id, principal);
         return ResponseEntity.noContent().build(); // Status 204 No Content
     }
 

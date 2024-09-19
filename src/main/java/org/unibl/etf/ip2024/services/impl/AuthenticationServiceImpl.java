@@ -24,13 +24,13 @@ import org.unibl.etf.ip2024.services.*;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
-    private final UserEntityRepository userRepository; // Repository for user entities
-    private final PasswordEncoder passwordEncoder; // Password encoder for encrypting passwords
-    private final JwtService jwtService; // Service for handling JWT tokens
-    private final UserService userService; // User service for loading user details
-    private final CityService cityService; // City service
-    private final AuthenticationManager authenticationManager; // Manager for authentication
-    private final LogService logService; // Log service
+    private final UserEntityRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final UserService userService;
+    private final CityService cityService;
+    private final AuthenticationManager authenticationManager;
+    private final LogService logService;
     private final EmailService emailService;
 
     @Value("${frontend.url}")
@@ -47,12 +47,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
-        CityEntity city = cityService.getCityById(request.getCityId()); // Get the city entity by ID
-        user.setCity(city); // Set the user's city
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // Encrypt and set the user's password
-        user.setRole(Roles.USER); // Set the user's role to USER
+        CityEntity city = cityService.getCityById(request.getCityId());
+        user.setCity(city);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(Roles.USER);
         user.setAvatarUrl(request.getAvatarUrl());
-        userRepository.save(user); // Save the user entity to the database
+        userRepository.save(user);
         CustomUserDetails userDetails = new CustomUserDetails(
                 user.getUsername(),
                 user.getPassword(),
@@ -111,7 +111,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             // Activate the user account
             user.setActivated(true);
             userRepository.saveAndFlush(user);
-            return true; // Return true if activation is successful
+            return true;
         }
 
         // If the token is invalid or expired

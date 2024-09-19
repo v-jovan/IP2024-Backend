@@ -17,18 +17,21 @@ import java.util.List;
 public class CategoryController {
     private final CategoryService categoryService;
 
+    // Endpoint for getting all categories
     @GetMapping
     public List<CategoryEntity> getAllCategories() {
         return this.categoryService.listCategories();
     }
 
+    // Endpoint for getting all categories with subscription
     @GetMapping("/subscriptions")
     public ResponseEntity<List<CategoryWithSubscriptionDTO>> getCategoriesWithSubscription(Principal principal) {
         return ResponseEntity.ok(this.categoryService.getCategoriesWithSubscription(principal));
     }
 
+    // Endpoint for adding subscription
     @PostMapping("/subscribe")
-    public ResponseEntity<CategoryEntity> addCategory(Principal principal, @RequestBody SubscriptionRequest request) {
+    public ResponseEntity<CategoryEntity> subscribeToCategory(Principal principal, @RequestBody SubscriptionRequest request) {
         return ResponseEntity.ok(this.categoryService.addSubscription(principal, request.getCategoryId()));
     }
 }

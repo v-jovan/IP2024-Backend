@@ -12,6 +12,14 @@ import java.util.List;
 public interface MessageEntityRepository extends JpaRepository<MessageEntity, Integer> {
     List<MessageEntity> findAllBySenderIdOrRecipientId(Integer senderId, Integer recipientId);
 
+
+    /**
+     * Retrieves a list of messages exchanged between two users, ordered by the time they were sent.
+     *
+     * @param userId             the ID of the first user
+     * @param conversationUserId the ID of the second user
+     * @return a list of MessageEntity objects representing the messages exchanged between the two users
+     */
     @Query("SELECT m FROM MessageEntity m WHERE " +
             "(m.sender.id = :userId AND m.recipient.id = :conversationUserId) OR " +
             "(m.sender.id = :conversationUserId AND m.recipient.id = :userId) " +

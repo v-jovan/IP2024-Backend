@@ -22,15 +22,17 @@ public class AttributeController {
     private static final Logger logger = LoggerFactory.getLogger(AttributeController.class);
     private final AttributeService attributeService;
 
+    // Endpoint to get all attributes with values
     @GetMapping
     public ResponseEntity<List<AttributeDTO>> getAllAttributesWithValues() {
         List<AttributeDTO> attributes = attributeService.getAllAttributesWithValues();
         return ResponseEntity.ok(attributes);
     }
 
+    // Endpoint to get attributes by category ID
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<AttributeDTO>> getAttributesByCategoryId(@PathVariable Integer categoryId) {
-        if (categoryId == null) {
+        if (categoryId == null || categoryId <= 0) {
             logger.error("Category ID is null");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

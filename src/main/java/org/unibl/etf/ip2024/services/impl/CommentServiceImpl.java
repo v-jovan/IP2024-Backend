@@ -1,5 +1,6 @@
 package org.unibl.etf.ip2024.services.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,19 +20,13 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
     private final CommentEntityRepository commentRepository;
     private final UserEntityRepository userRepository;
     private final FitnessProgramEntityRepository programRepository;
     private final LogService logService;
-
-    public CommentServiceImpl(CommentEntityRepository commentRepository, UserEntityRepository userRepository, FitnessProgramEntityRepository programRepository, LogService logService) {
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-        this.programRepository = programRepository;
-        this.logService = logService;
-    }
 
     @Override
     public CommentResponse addComment(Principal principal, Integer programId, String comment) {

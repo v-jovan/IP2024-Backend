@@ -21,16 +21,19 @@ public class ActivityController {
     private final ActivityService activityService;
     private final PdfService pdfService;
 
+    // Endpoint for getting all activities by user
     @GetMapping
     public ResponseEntity<List<ActivityResponse>> getAllActivitiesByUser(Principal principal) {
         return ResponseEntity.ok(activityService.getAllActivitiesByUser(principal));
     }
 
+    // Endpoint for adding a new activity
     @PostMapping
     public ResponseEntity<ActivityResponse> addActivity(Principal principal, @RequestBody ActivityRequest activityRequest) {
         return ResponseEntity.ok(activityService.addActivity(principal, activityRequest));
     }
 
+    // Endpoint for downloading a PDF report of all activities
     @GetMapping("/download-pdf")
     public ResponseEntity<byte[]> downloadActivityReport(Principal principal) {
         List<ActivityResponse> activities = activityService.getAllActivitiesByUser(principal);

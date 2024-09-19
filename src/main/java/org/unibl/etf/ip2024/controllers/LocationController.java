@@ -15,6 +15,7 @@ import java.util.List;
 public class LocationController {
     private final LocationService locationService;
 
+    // Endpoint to get all locations
     @GetMapping
     public List<LocationEntity> getAllLocations() {
         return this.locationService.listLocations();

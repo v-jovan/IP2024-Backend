@@ -31,7 +31,7 @@ public class TestController {
 
     @GetMapping("/test-email")
     public String sendTestEmail() {
-        subscriptionService.sendDailySubscriptionEmails(); // Ovo odmah šalje emailove
+        subscriptionService.sendDailySubscriptionEmails();
         return "Test email sent!";
     }
 

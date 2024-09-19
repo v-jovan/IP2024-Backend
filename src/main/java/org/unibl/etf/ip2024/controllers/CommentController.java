@@ -18,6 +18,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    // Endpoint for getting comments
     @GetMapping
     public ResponseEntity<Page<CommentResponse>> getComments(
             @RequestParam Integer programId,
@@ -27,6 +28,7 @@ public class CommentController {
         return ResponseEntity.ok(this.commentService.getComments(programId, PageRequest.of(page, size)));
     }
 
+    // Endpoint for adding comment
     @PostMapping
     public ResponseEntity<CommentResponse> addComment(
             Principal principal,

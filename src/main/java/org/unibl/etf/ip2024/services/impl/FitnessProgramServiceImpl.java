@@ -247,10 +247,12 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
      * @throws ImageUploadException            if an error occurs during image upload
      */
     @Override
+    @Transactional
     public FitnessProgramResponse updateFitnessProgram(Integer programId, FitnessProgramRequest fitnessProgramRequest, List<MultipartFile> files, List<String> removedImages) throws IOException {
         FitnessProgramEntity fitnessProgramEntity = fitnessProgramRepository.findById(programId)
                 .orElseThrow(() -> new ProgramNotFoundException("Program sa ID-jem " + programId + " nije pronađen."));
 
+        // Update basic program details
         fitnessProgramEntity.setName(fitnessProgramRequest.getName());
         fitnessProgramEntity.setDescription(fitnessProgramRequest.getDescription());
         fitnessProgramEntity.setDifficultyLevel(fitnessProgramRequest.getDifficultyLevel());
@@ -258,11 +260,14 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
         fitnessProgramEntity.setPrice(fitnessProgramRequest.getPrice());
         fitnessProgramEntity.setYoutubeUrl(fitnessProgramRequest.getYoutubeUrl());
 
+        // Update category
         if (fitnessProgramRequest.getCategoryId() != null) {
             CategoryEntity category = categoryRepository.findById(fitnessProgramRequest.getCategoryId())
                     .orElseThrow(() -> new CategoryNotFoundException("Kategorija nije pronađena"));
             fitnessProgramEntity.setCategory(category);
         }
+
+        // Update location
         if (fitnessProgramRequest.getLocationId() != null) {
             LocationEntity location = locationRepository.findById(fitnessProgramRequest.getLocationId())
                     .orElseThrow(() -> new LocationNotFoundException("Lokacija nije pronađena"));
@@ -271,6 +276,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
             fitnessProgramEntity.setLocation(null);
         }
 
+        // Image removals
         if (removedImages != null && !removedImages.isEmpty()) {
             for (String imageUrl : removedImages) {
                 ProgramImageEntity imageEntity = programImageRepository.findByImageUrl(imageUrl)
@@ -283,6 +289,7 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
             }
         }
 
+        // New images
         if (files != null && !files.isEmpty()) {
             for (MultipartFile file : files) {
                 String fileName = imageUploadService.uploadImage(file);
@@ -295,22 +302,41 @@ public class FitnessProgramServiceImpl implements FitnessProgramService {
             }
         }
 
-        programAttributeRepository.deleteAll(fitnessProgramEntity.getProgramAttributes());
-        if (fitnessProgramRequest.getSpecificAttributes() != null) {
-            List<ProgramAttributeEntity> programAttributes = new ArrayList<>();
-            for (FitnessProgramRequest.SpecificAttribute attribute : fitnessProgramRequest.getSpecificAttributes()) {
-                ProgramAttributeEntity programAttributeEntity = new ProgramAttributeEntity();
+        // Update attributes - modify if exists, add new if not
+        List<ProgramAttributeEntity> currentAttributes = fitnessProgramEntity.getProgramAttributes();
+        List<ProgramAttributeEntity> updatedAttributes = new ArrayList<>();
 
-                AttributeValueEntity attributeValueEntity = attributeValueRepository.findById(attribute.getAttributeValue())
-                        .orElseThrow(() -> new AttributeValueNotFoundException("Vrijednost atributa nije pronađena"));
+        for (FitnessProgramRequest.SpecificAttribute attribute : fitnessProgramRequest.getSpecificAttributes()) {
+            AttributeValueEntity attributeValueEntity = attributeValueRepository.findById(attribute.getAttributeValue())
+                    .orElseThrow(() -> new AttributeValueNotFoundException("Vrijednost atributa nije pronađena"));
 
-                programAttributeEntity.setFitnessProgram(fitnessProgramEntity);
-                programAttributeEntity.setAttributeValue(attributeValueEntity);
-                programAttributes.add(programAttributeEntity);
+            Optional<ProgramAttributeEntity> existingAttribute = currentAttributes.stream()
+                    .filter(attr -> attr.getAttributeValue().getAttribute().getId().equals(attribute.getAttributeName()))
+                    .findFirst();
+
+            if (existingAttribute.isPresent()) {
+                // If attribute exists, update its value
+                ProgramAttributeEntity existingAttr = existingAttribute.get();
+                existingAttr.setAttributeValue(attributeValueEntity);
+                updatedAttributes.add(existingAttr);
+            } else {
+                // If attribute doesn't exist, create a new one
+                ProgramAttributeEntity newAttribute = new ProgramAttributeEntity();
+                newAttribute.setFitnessProgram(fitnessProgramEntity);
+                newAttribute.setAttributeValue(attributeValueEntity);
+                updatedAttributes.add(newAttribute);
             }
-            programAttributeRepository.saveAll(programAttributes);
-            fitnessProgramEntity.setProgramAttributes(programAttributes);
         }
+
+        // Remove attributes that were not part of the update request
+        List<ProgramAttributeEntity> attributesToRemove = currentAttributes.stream()
+                .filter(attr -> updatedAttributes.stream().noneMatch(updated -> updated.getAttributeValue().getAttribute().getId().equals(attr.getAttributeValue().getAttribute().getId())))
+                .collect(Collectors.toList());
+
+        programAttributeRepository.deleteAll(attributesToRemove);
+
+        // Set updated attributes
+        fitnessProgramEntity.setProgramAttributes(updatedAttributes);
 
         logService.log(null, "Ažuriranje fitness programa sa ID-jem " + programId);
 

@@ -55,7 +55,7 @@ public class FitnessProgramEntity {
     @JoinColumn(name = "location_id", referencedColumnName = "id")
     private LocationEntity location;
     @JsonIgnore
-    @OneToMany(mappedBy = "fitnessProgram", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "fitnessProgram", cascade = CascadeType.ALL)
     private List<ProgramAttributeEntity> programAttributes;
     @JsonIgnore
     @OneToMany(mappedBy = "fitnessProgramByProgramId", cascade = CascadeType.ALL, orphanRemoval = true)

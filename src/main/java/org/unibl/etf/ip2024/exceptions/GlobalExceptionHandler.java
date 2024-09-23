@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(request, HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
     }
 
-    // Handle Custom Exceptions (e.g., UserAlreadyExistsException)
+    // Handle Custom Exceptions
     @ExceptionHandler({
             UserAlreadyExistsException.class,
             UserNotFoundException.class,
@@ -85,7 +85,9 @@ public class GlobalExceptionHandler {
                 exception instanceof AttributeValueNotFoundException ||
                 exception instanceof ProgramNotFoundException) {
             status = HttpStatus.NOT_FOUND;
-        } else if (exception instanceof InvalidTokenException || exception instanceof AccountActivationException || exception instanceof InvalidOldPasswordException) {
+        } else if (exception instanceof InvalidTokenException ||
+                exception instanceof AccountActivationException ||
+                exception instanceof InvalidOldPasswordException) {
             status = HttpStatus.BAD_REQUEST;
         } else if (exception instanceof UnauthorizedAccessException) {
             status = HttpStatus.UNAUTHORIZED;
@@ -94,7 +96,7 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(request, status, exception.getMessage(), exception);
     }
 
-    // Handle MethodArgumentTypeMismatchException (e.g., invalid path variable)
+    // Handle MethodArgumentTypeMismatchException
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatchException(HttpServletRequest request, MethodArgumentTypeMismatchException exception) {
         String message = "Neispravna parametar: " + exception.getName();
@@ -108,7 +110,7 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(request, HttpStatus.METHOD_NOT_ALLOWED, message, exception);
     }
 
-    // Handle All Other Exceptions
+    // Handle all other exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllExceptions(HttpServletRequest request, Exception exception) {
         return buildErrorResponse(request, HttpStatus.INTERNAL_SERVER_ERROR, "Došlo je do greške prilikom obrade zahtjeva", exception);

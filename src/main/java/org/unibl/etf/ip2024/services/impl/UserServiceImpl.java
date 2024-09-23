@@ -161,13 +161,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<AdviserDTO> getAllAdvisers() {
-        List<UserEntity> advisers = userRepository.findAllByRole(Roles.INSTRUCTOR)
-                .orElseThrow(() -> new UserNotFoundException("Nema savjetnika u sistemu."));
-
+        List<UserEntity> advisers = userRepository.findAllByRole(Roles.INSTRUCTOR);
+        if (advisers.isEmpty()) {
+            throw new UserNotFoundException("Nema savjetnika u sistemu.");
+        }
         return advisers.stream()
                 .map(this::mapToAdviserDTO)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public List<NonAdvisersResponse> getAllNonAdvisers(Principal principal) {
@@ -175,14 +177,17 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(UserNotFoundException::new);
 
-        List<UserEntity> users = userRepository.findAllByRoleNotAndUsernameNot(Roles.INSTRUCTOR, user.getUsername())
-                .orElseThrow(() -> new UserNotFoundException("Nema korisnika u sistemu."));
+        List<UserEntity> users = userRepository.findAllByRoleNotAndUsernameNot(Roles.INSTRUCTOR, user.getUsername());
 
-        return users
-                .stream()
+        if (users.isEmpty()) {
+            throw new UserNotFoundException("Nema korisnika u sistemu.");
+        }
+
+        return users.stream()
                 .map(this::mapToNonAdviser)
                 .collect(Collectors.toList());
     }
+
 
     private NonAdvisersResponse mapToNonAdviser(UserEntity userEntity) {
         NonAdvisersResponse response = new NonAdvisersResponse();
